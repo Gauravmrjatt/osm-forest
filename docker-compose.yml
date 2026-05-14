@@ -162,7 +162,6 @@ services:
       - "--auth"
       - "--bind_ip_all"
       - "--wiredTigerCacheSizeGB=0.25"
-      - "--journal"
       - "--quiet"
 
     logging:
