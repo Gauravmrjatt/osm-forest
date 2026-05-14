@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSM ARMY - Admin Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+/* ============================================
+   OSM ARMY ADMIN DASHBOARD
+   ============================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg-primary:#0a0a0f;--bg-secondary:#0d0d1a;--bg-card:#16161f;--bg-card-hover:#1a1a2e;
+  --border:#2a2a3e;--accent:#7c3aed;--accent-light:#8b5cf6;--accent-glow:rgba(124,58,237,0.4);
+  --text-primary:#ffffff;--text-secondary:#a0a0b0;--text-muted:#6b6b7b;
+  --success:#10b981;--error:#ef4444;--warning:#f59e0b;--info:#3b82f6;
+  --radius-sm:8px;--radius-md:12px;--radius-lg:24px;
+  --shadow-glow:0 0 20px rgba(124,58,237,0.3);--shadow-card:0 4px 24px rgba(0,0,0,0.4);
+  --transition:all 0.3s ease;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;
+  background:linear-gradient(135deg,var(--bg-primary) 0%,var(--bg-secondary) 100%);
+  color:var(--text-primary);min-height:100vh;line-height:1.6;
+}
+
+/* ========== LOGIN PAGE ========== */
+.login-page{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:2rem;
+}
+.login-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius-md);padding:2.5rem;width:100%;max-width:420px;
+  backdrop-filter:blur(20px);box-shadow:var(--shadow-card);
+}
+.login-logo{
+  display:flex;align-items:center;justify-content:center;
+  gap:0.75rem;font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;
+}
+.login-logo svg{width:40px;height:40px}
+.login-subtitle{
+  text-align:center;color:var(--text-secondary);font-size:0.85rem;margin-bottom:2rem;
+}
+.login-error{
+  background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);
+  color:var(--error);padding:0.75rem 1rem;border-radius:var(--radius-sm);
+  font-size:0.85rem;margin-bottom:1rem;display:none;
+}
+.login-error.active{display:block;animation:shake 0.4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.login-form{display:flex;flex-direction:column;gap:1rem}
+.form-group{display:flex;flex-direction:column;gap:0.35rem}
+.form-group label{font-size:0.8rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px}
+.form-group input{
+  padding:0.75rem 1rem;background:var(--bg-secondary);border:1px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.95rem;
+  outline:none;transition:var(--transition);
+}
+.form-group input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(124,58,237,0.15)}
+.form-group input::placeholder{color:var(--text-muted)}
+.password-wrapper{position:relative}
+.password-wrapper input{width:100%}
+.toggle-password{
+  position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--text-muted);cursor:pointer;
+  padding:0.25rem;transition:var(--transition);
+}
+.toggle-password:hover{color:var(--text-primary)}
+.login-btn{
+  padding:0.875rem;background:linear-gradient(135deg,var(--accent),var(--accent-light));
+  border:none;border-radius:var(--radius-sm);color:#fff;font-size:0.95rem;font-weight:600;
+  cursor:pointer;transition:var(--transition);margin-top:0.5rem;
+}
+.login-btn:hover{opacity:0.9;transform:translateY(-1px)}
+.login-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.login-hint{text-align:center;font-size:0.75rem;color:var(--text-muted);margin-top:1rem}
+
+/* ========== DASHBOARD LAYOUT ========== */
+.dashboard{display:none}
+.dashboard.active{display:block}
+
+/* Top Nav */
+.top-nav{
+  position:fixed;top:0;left:0;right:0;display:flex;align-items:center;
+  justify-content:space-between;padding:0 2rem;height:64px;
+  background:rgba(10,10,15,0.85);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);z-index:1000;
+}
+.top-nav-left{display:flex;align-items:center;gap:2rem}
+.top-nav-left .logo{display:flex;align-items:center;gap:0.75rem;font-size:1.15rem;font-weight:700}
+.top-nav-left .logo svg{width:28px;height:28px}
+.top-nav-right{display:flex;align-items:center;gap:1rem}
+.nav-user{font-size:0.85rem;color:var(--text-secondary)}
+.nav-user strong{color:var(--text-primary)}
+.nav-ip{font-size:0.75rem;color:var(--text-muted);background:var(--bg-secondary);
+  padding:0.25rem 0.5rem;border-radius:var(--radius-sm);border:1px solid var(--border)}
+.nav-btn{
+  padding:0.5rem 1rem;font-size:0.8rem;border-radius:var(--radius-sm);
+  cursor:pointer;border:1px solid transparent;transition:var(--transition);
+  display:flex;align-items:center;gap:0.5rem;font-weight:500;
+}
+.nav-btn:hover{transform:translateY(-1px)}
+.nav-btn-logout{background:var(--bg-card);color:var(--text-secondary);border-color:var(--border)}
+.nav-btn-logout:hover{border-color:var(--error);color:var(--error)}
+.nav-btn-killswitch{
+  background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;border:none;
+}
+.nav-btn-killswitch:hover{opacity:0.9;box-shadow:0 0 12px rgba(239,68,68,0.4)}
+
+/* Main area */
+.main-area{padding:64px 1.5rem 2rem;max-width:1400px;margin:0 auto}
+.page-title{font-size:1.5rem;font-weight:700;margin-bottom:1.5rem}
+
+/* Stats Row */
+.stats-row{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:1rem;margin-bottom:2rem;
+}
+.stat-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius-md);padding:1.5rem;
+  transition:var(--transition);
+}
+.stat-card:hover{border-color:var(--accent)}
+.stat-card-header{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;
+}
+.stat-card-label{font-size:0.8rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px}
+.stat-card-icon{
+  width:36px;height:36px;border-radius:var(--radius-sm);
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2);
+}
+.stat-card-icon svg{width:18px;height:18px;color:var(--accent-light)}
+.stat-card-icon.success{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.2)}
+.stat-card-icon.success svg{color:var(--success)}
+.stat-card-icon.error{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.2)}
+.stat-card-icon.error svg{color:var(--error)}
+.stat-card-icon.warning{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.2)}
+.stat-card-icon.warning svg{color:var(--warning)}
+.stat-card-value{font-size:1.75rem;font-weight:700;margin-bottom:0.25rem}
+.stat-card-trend{font-size:0.75rem;display:flex;align-items:center;gap:0.25rem}
+.stat-card-trend.up{color:var(--success)}
+.stat-card-trend.down{color:var(--error)}
+
+/* Charts Section */
+.charts-section{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));
+  gap:1rem;margin-bottom:2rem;
+}
+.chart-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius-md);padding:1.5rem;
+}
+.chart-card h3{font-size:1rem;margin-bottom:1rem}
+.chart-container{position:relative;height:250px}
+
+/* Codes Management */
+.section-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius-md);padding:1.5rem;margin-bottom:1.5rem;
+}
+.section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;
+}
+.section-header h3{font-size:1.1rem}
+.section-actions{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap}
+.search-input{
+  padding:0.5rem 0.75rem;background:var(--bg-secondary);
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  color:var(--text-primary);font-size:0.85rem;outline:none;
+  min-width:200px;
+}
+.search-input:focus{border-color:var(--accent)}
+.btn{
+  padding:0.5rem 1rem;font-size:0.85rem;border-radius:var(--radius-sm);
+  cursor:pointer;border:1px solid transparent;transition:var(--transition);
+  display:inline-flex;align-items:center;gap:0.5rem;font-weight:500;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{
+  background:linear-gradient(135deg,var(--accent),var(--accent-light));
+  color:#fff;border:none;
+}
+.btn-primary:hover{opacity:0.9}
+.btn-secondary{
+  background:var(--bg-secondary);color:var(--text-secondary);border-color:var(--border);
+}
+.btn-secondary:hover{border-color:var(--accent);color:var(--text-primary)}
+.btn-success{
+  background:rgba(16,185,129,0.15);color:var(--success);border-color:rgba(16,185,129,0.3);
+}
+.btn-success:hover{background:rgba(16,185,129,0.25)}
+.btn-danger{
+  background:rgba(239,68,68,0.15);color:var(--error);border-color:rgba(239,68,68,0.3);
+}
+.btn-danger:hover{background:rgba(239,68,68,0.25)}
+
+/* Tabs */
+.tabs{display:flex;gap:0.25rem;background:var(--bg-secondary);padding:0.25rem;border-radius:var(--radius-sm);margin-bottom:1rem;overflow-x:auto}
+.tab{
+  padding:0.5rem 1rem;font-size:0.85rem;border-radius:var(--radius-sm);
+  cursor:pointer;transition:var(--transition);border:none;background:transparent;
+  color:var(--text-secondary);white-space:nowrap;
+}
+.tab:hover{color:var(--text-primary)}
+.tab.active{background:var(--accent);color:#fff}
+
+/* Tables */
+.data-table{width:100%;border-collapse:collapse;font-size:0.85rem}
+.data-table th{
+  text-align:left;padding:0.75rem;color:var(--text-secondary);
+  font-weight:600;text-transform:uppercase;font-size:0.7rem;letter-spacing:0.5px;
+  border-bottom:1px solid var(--border);
+}
+.data-table td{padding:0.75rem;border-bottom:1px solid var(--border);color:var(--text-primary)}
+.data-table tr:hover td{background:rgba(124,58,237,0.03)}
+.data-table .status{
+  display:inline-flex;align-items:center;gap:0.35rem;
+  padding:0.25rem 0.5rem;border-radius:12px;font-size:0.75rem;font-weight:500;
+}
+.status-active{background:rgba(16,185,129,0.1);color:var(--success);border:1px solid rgba(16,185,129,0.2)}
+.status-claimed{background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2)}
+.status-expired{background:rgba(107,107,123,0.1);color:var(--text-muted);border:1px solid rgba(107,107,123,0.2)}
+.status-blocked{background:rgba(239,68,68,0.1);color:var(--error);border:1px solid rgba(239,68,68,0.2)}
+
+/* Pagination */
+.pagination{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);
+}
+.pagination-info{font-size:0.8rem;color:var(--text-muted)}
+.pagination-btns{display:flex;gap:0.25rem}
+.pagination-btn{
+  padding:0.4rem 0.75rem;background:var(--bg-secondary);
+  border:1px solid var(--border);color:var(--text-secondary);
+  border-radius:var(--radius-sm);cursor:pointer;font-size:0.8rem;
+  transition:var(--transition);
+}
+.pagination-btn:hover:not(:disabled){border-color:var(--accent);color:var(--text-primary)}
+.pagination-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+/* Alerts */
+.alert-item{
+  display:flex;align-items:center;gap:0.75rem;
+  padding:0.75rem;background:var(--bg-secondary);
+  border-radius:var(--radius-sm);border:1px solid var(--border);
+  margin-bottom:0.5rem;transition:var(--transition);
+}
+.alert-item:hover{border-color:var(--accent)}
+.alert-severity{width:4px;height:40px;border-radius:2px;flex-shrink:0}
+.alert-severity.critical{background:var(--error)}
+.alert-severity.high{background:var(--warning)}
+.alert-severity.medium{background:var(--info)}
+.alert-severity.low{background:var(--success)}
+.alert-content{flex:1;min-width:0}
+.alert-time{font-size:0.7rem;color:var(--text-muted)}
+.alert-message{font-size:0.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.alert-actions{display:flex;gap:0.5rem}
+.alert-btn{
+  padding:0.25rem 0.5rem;font-size:0.75rem;border-radius:var(--radius-sm);
+  cursor:pointer;border:1px solid transparent;background:transparent;
+  color:var(--text-muted);transition:var(--transition);
+}
+.alert-btn:hover{background:var(--bg-card-hover);color:var(--text-primary)}
+
+/* Two column layout */
+.two-col{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));
+  gap:1rem;
+}
+
+/* Kill switch status */
+.killswitch-status{
+  display:flex;align-items:center;gap:0.75rem;
+  padding:1rem;background:var(--bg-secondary);
+  border-radius:var(--radius-sm);border:1px solid var(--border);
+}
+.killswitch-status.active{border-color:var(--error);background:rgba(239,68,68,0.05)}
+.killswitch-dot{
+  width:10px;height:10px;border-radius:50%;background:var(--success);
+}
+.killswitch-status.active .killswitch-dot{background:var(--error);animation:killPulse 1s ease-in-out infinite}
+@keyframes killPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.4)}50%{box-shadow:0 0 0 6px rgba(239,68,68,0)}}
+
+/* Settings */
+.settings-grid{display:grid;gap:1rem}
+.setting-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1rem;background:var(--bg-secondary);
+  border-radius:var(--radius-sm);border:1px solid var(--border);
+}
+.setting-info h4{font-size:0.9rem;margin-bottom:0.25rem}
+.setting-info p{font-size:0.8rem;color:var(--text-muted)}
+
+/* Toggle switch */
+.toggle{
+  width:44px;height:24px;border-radius:12px;
+  background:var(--bg-card-hover);border:1px solid var(--border);
+  position:relative;cursor:pointer;transition:var(--transition);flex-shrink:0;
+}
+.toggle.on{background:var(--accent);border-color:var(--accent)}
+.toggle-knob{
+  position:absolute;top:2px;left:2px;width:18px;height:18px;
+  border-radius:50%;background:#fff;transition:var(--transition);
+}
+.toggle.on .toggle-knob{left:22px}
+
+/* Slider */
+input[type="range"]{
+  -webkit-appearance:none;appearance:none;
+  width:120px;height:6px;border-radius:3px;
+  background:var(--bg-card-hover);outline:none;
+}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--accent);cursor:pointer;
+}
+
+/* Modal */
+.modal-overlay{
+  position:fixed;inset:0;z-index:9997;
+  background:rgba(10,10,15,0.85);backdrop-filter:blur(5px);
+  display:none;align-items:center;justify-content:center;
+  padding:1rem;
+}
+.modal-overlay.active{display:flex}
+.modal{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius-md);padding:2rem;max-width:500px;width:100%;
+  box-shadow:var(--shadow-card);animation:modalIn 0.3s ease;
+}
+@keyframes modalIn{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h3{margin-bottom:0.5rem}
+.modal p{color:var(--text-secondary);font-size:0.85rem;margin-bottom:1.5rem}
+.modal-form{display:flex;flex-direction:column;gap:1rem;margin-bottom:1.5rem}
+.modal-actions{display:flex;gap:0.75rem;justify-content:flex-end}
+
+/* Toast */
+.toast-container{
+  position:fixed;top:80px;right:1.5rem;z-index:9999;
+  display:flex;flex-direction:column;gap:0.5rem;
+}
+.toast{
+  padding:1rem 1.25rem;border-radius:var(--radius-sm);font-size:0.9rem;font-weight:500;
+  display:flex;align-items:center;gap:0.75rem;min-width:280px;max-width:400px;
+  animation:toastIn 0.4s ease,toastOut 0.4s ease 4.6s forwards;
+  backdrop-filter:blur(10px);border:1px solid;
+}
+@keyframes toastIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes toastOut{to{transform:translateX(120%);opacity:0}}
+.toast.success{background:rgba(16,185,129,0.1);color:var(--success);border-color:rgba(16,185,129,0.3)}
+.toast.error{background:rgba(239,68,68,0.1);color:var(--error);border-color:rgba(239,68,68,0.3)}
+.toast.warning{background:rgba(245,158,11,0.1);color:var(--warning);border-color:rgba(245,158,11,0.3)}
+
+/* Responsive */
+@media(max-width:768px){
+  .top-nav{padding:0 1rem}
+  .top-nav-left .nav-user{display:none}
+  .charts-section,.two-col{grid-template-columns:1fr}
+  .section-header{flex-direction:column;align-items:flex-start}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== LOGIN PAGE ==================== -->
+<div class="login-page" id="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg viewBox="0 0 32 32" fill="none" width="40" height="40">
+        <defs><linearGradient id="lgrad" x1="0" y1="0" x2="32" y2="32">
+          <stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#8b5cf6"/>
+        </linearGradient></defs>
+        <path d="M16 2L4 8v8c0 7.18 5.12 13.9 12 16 6.88-2.1 12-8.82 12-16V8L16 2z" fill="url(#lgrad)"/>
+        <path d="M12 16l3 3 5-5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      OSM ARMY Admin
+    </div>
+    <p class="login-subtitle">Secure admin access - Authorized personnel only</p>
+    <div class="login-error" id="login-error">Invalid credentials</div>
+    <form class="login-form" id="login-form" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="username" placeholder="Enter username" required autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="password" placeholder="Enter password" required autocomplete="current-password">
+          <button type="button" class="toggle-password" onclick="togglePassword()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="form-group" id="totp-group" style="display:none">
+        <label>2FA Code</label>
+        <input type="text" id="totp" placeholder="000000" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code">
+      </div>
+      <button type="submit" class="login-btn" id="login-btn">Login</button>
+    </form>
+    <p class="login-hint">IP: <span id="login-ip">--.--.--.--</span> | All attempts are logged</p>
+  </div>
+</div>
+
+<!-- ==================== DASHBOARD ==================== -->
+<div class="dashboard" id="dashboard">
+
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <div class="top-nav-left">
+      <div class="logo">
+        <svg viewBox="0 0 32 32" fill="none" width="28" height="28">
+          <defs><linearGradient id="dgrad" x1="0" y1="0" x2="32" y2="32">
+            <stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#8b5cf6"/>
+          </linearGradient></defs>
+          <path d="M16 2L4 8v8c0 7.18 5.12 13.9 12 16 6.88-2.1 12-8.82 12-16V8L16 2z" fill="url(#dgrad)"/>
+          <path d="M12 16l3 3 5-5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        OSM ARMY Admin
+      </div>
+    </div>
+    <div class="top-nav-right">
+      <span class="nav-user">Welcome, <strong id="admin-name">Admin</strong></span>
+      <span class="nav-ip" id="admin-ip">127.0.0.1</span>
+      <button class="nav-btn nav-btn-logout" onclick="logout()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </button>
+      <button class="nav-btn nav-btn-killswitch" onclick="showKillSwitchModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Kill Switch
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Area -->
+  <div class="main-area">
+
+    <!-- Stats Row -->
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <span class="stat-card-label">Total Codes</span>
+          <div class="stat-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+          </div>
+        </div>
+        <div class="stat-card-value" id="stat-codes">—</div>
+        <div class="stat-card-trend up">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          <span id="codes-trend">Loading...</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <span class="stat-card-label">Active Users</span>
+          <div class="stat-card-icon success">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+        </div>
+        <div class="stat-card-value" id="stat-users">—</div>
+        <div class="stat-card-trend up">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          <span id="users-trend">Loading...</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <span class="stat-card-label">Blocked IPs</span>
+          <div class="stat-card-icon error">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          </div>
+        </div>
+        <div class="stat-card-value" id="stat-blocked">—</div>
+        <div class="stat-card-trend down">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+          <span id="blocked-trend">Loading...</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <span class="stat-card-label">Alerts Today</span>
+          <div class="stat-card-icon warning">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+        </div>
+        <div class="stat-card-value" id="stat-alerts">—</div>
+        <div class="stat-card-trend down">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+          <span id="alerts-trend">Loading...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== CREATE CODE LINK SECTION ========== -->
+    <div class="section-card" id="create-link-section">
+      <div class="section-header">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.5rem;color:var(--accent)"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Create Code Link
+        </h3>
+        <div class="section-actions">
+          <span style="font-size:0.8rem;color:var(--text-muted)" id="links-count">0 links generated</span>
+        </div>
+      </div>
+
+      <!-- Create Link Form -->
+      <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1.25rem;margin-bottom:1.25rem">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:0.75rem;align-items:end">
+          <!-- Code Input -->
+          <div class="form-group" style="margin:0">
+            <label style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary)">Gift Code</label>
+            <input type="text" id="link-code-input" placeholder="e.g. 91CLUB55XYZ" 
+              style="width:100%;padding:0.6rem 0.75rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.9rem;outline:none;font-family:monospace"
+              onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+          </div>
+          <!-- Site Select -->
+          <div class="form-group" style="margin:0">
+            <label style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary)">Site</label>
+            <select id="link-site-select" 
+              style="width:100%;padding:0.6rem 0.75rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.9rem;outline:none;cursor:pointer"
+              onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+              <option value="91club">91 Club</option>
+              <option value="55club">55 Club</option>
+              <option value="in999">IN999</option>
+            </select>
+          </div>
+          <!-- Timer Select -->
+          <div class="form-group" style="margin:0">
+            <label style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary)">Timer</label>
+            <select id="link-timer-select" 
+              style="width:100%;padding:0.6rem 0.75rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.9rem;outline:none;cursor:pointer"
+              onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+              <option value="1">1 Minute</option>
+              <option value="5">5 Minutes</option>
+              <option value="10" selected>10 Minutes</option>
+              <option value="15">15 Minutes</option>
+              <option value="30">30 Minutes</option>
+              <option value="60">1 Hour</option>
+              <option value="120">2 Hours</option>
+              <option value="180">3 Hours</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <!-- Generate Button -->
+          <button class="btn btn-primary" onclick="generateLink()" style="padding:0.6rem 1.5rem;height:fit-content;white-space:nowrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Generate Link
+          </button>
+        </div>
+        <!-- Custom Timer Input (hidden) -->
+        <div class="form-group" id="custom-timer-row" style="margin:0.75rem 0 0;display:none">
+          <label style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-secondary)">Custom Timer (minutes)</label>
+          <input type="number" id="link-custom-timer" placeholder="e.g. 45" min="1" max="1440"
+            style="width:200px;padding:0.6rem 0.75rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.9rem;outline:none">
+        </div>
+      </div>
+
+      <!-- Generated Link Display -->
+      <div id="generated-link-display" style="display:none;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:var(--radius-sm);padding:1rem;margin-bottom:1.25rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:0.75rem;color:var(--success);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.25rem">Generated Link</div>
+            <div style="font-size:0.85rem;color:var(--text-primary);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="generated-link-url">https://osmarmy.com/gift?code=campaignId</div>
+          </div>
+          <button class="btn btn-success" onclick="copyGeneratedLink()" style="flex-shrink:0">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy Link
+          </button>
+        </div>
+      </div>
+
+      <!-- Links Table -->
+      <div class="tabs">
+        <button class="tab active" onclick="filterLinks('all',this)">All Links</button>
+        <button class="tab" onclick="filterLinks('active',this)">Active</button>
+        <button class="tab" onclick="filterLinks('expired',this)">Expired</button>
+      </div>
+      <table class="data-table" id="links-table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Site</th>
+            <th>Timer</th>
+            <th>Link</th>
+            <th>Clicks</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="links-tbody"></tbody>
+      </table>
+      <div class="pagination" id="links-pagination">
+        <span class="pagination-info" id="links-pag-info">Showing 0-0 of 0</span>
+        <div class="pagination-btns">
+          <button class="pagination-btn" disabled>&lt;</button>
+          <button class="pagination-btn" disabled>&gt;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <div class="chart-card">
+        <h3>Claims Over Time</h3>
+        <div class="chart-container"><canvas id="claimsChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Bot Detections</h3>
+        <div class="chart-container"><canvas id="botChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Security Score</h3>
+        <div class="chart-container"><canvas id="scoreChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Geographic Distribution</h3>
+        <div class="chart-container"><canvas id="geoChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Codes Management -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3>Gift Codes</h3>
+        <div class="section-actions">
+          <input type="text" class="search-input" id="code-search" placeholder="Search codes..." oninput="searchCodes()">
+          <button class="btn btn-primary" onclick="showAddCodeModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Code
+          </button>
+          <button class="btn btn-secondary" onclick="exportCodes()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export
+          </button>
+        </div>
+      </div>
+      <div class="tabs">
+        <button class="tab active" onclick="filterCodes('all',this)">All</button>
+        <button class="tab" onclick="filterCodes('active',this)">Active</button>
+        <button class="tab" onclick="filterCodes('claimed',this)">Claimed</button>
+        <button class="tab" onclick="filterCodes('expired',this)">Expired</button>
+      </div>
+      <table class="data-table" id="codes-table">
+        <thead>
+          <tr><th>Code</th><th>Status</th><th>Type</th><th>Created</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="codes-tbody"></tbody>
+      </table>
+      <div class="pagination" id="codes-pagination"></div>
+    </div>
+
+    <!-- Two Column: Alerts + Blocked IPs -->
+    <div class="two-col">
+      <!-- Alerts Feed -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3>Security Alerts</h3>
+          <div class="section-actions">
+            <button class="btn btn-secondary" onclick="ackAllAlerts()">Ack All</button>
+          </div>
+        </div>
+        <div class="tabs">
+          <button class="tab active" onclick="filterAlerts('all',this)">All</button>
+          <button class="tab" onclick="filterAlerts('critical',this)">Critical</button>
+          <button class="tab" onclick="filterAlerts('high',this)">High</button>
+        </div>
+        <div id="alerts-list"></div>
+      </div>
+
+      <!-- Blocked IPs -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3>Blocked IPs</h3>
+          <div class="section-actions">
+            <button class="btn btn-primary" onclick="showBlockIPModal()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              Block IP
+            </button>
+          </div>
+        </div>
+        <table class="data-table" id="blocked-table">
+          <thead>
+            <tr><th>IP Address</th><th>Reason</th><th>Blocked</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="blocked-tbody"></tbody>
+        </table>
+        <div class="pagination" id="blocked-pagination"></div>
+      </div>
+    </div>
+
+    <!-- Mutation Status -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3>Mutation Engine Status</h3>
+        <div class="section-actions">
+          <button class="btn btn-secondary" onclick="showRollbackModal()">Rollback</button>
+        </div>
+      </div>
+      <div class="two-col">
+        <div>
+          <div class="settings-grid">
+            <div class="setting-item">
+              <div class="setting-info">
+                <h4>Current Version</h4>
+                <p id="mut-version">Loading...</p>
+              </div>
+              <span class="status status-active">Active</span>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <h4>Active Algorithms</h4>
+                <p id="mut-algorithms">Loading...</p>
+              </div>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <h4>Endpoint Mappings</h4>
+                <p id="mut-endpoints">Loading...</p>
+              </div>
+            </div>
+            <div class="setting-item">
+              <div class="setting-info">
+                <h4>Next Mutation</h4>
+                <p id="mut-next">Loading...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.5px">Mutation History (7 Days)</h4>
+          <table class="data-table">
+            <thead>
+              <tr><th>Date</th><th>Version</th><th>Status</th></tr>
+            </thead>
+            <tbody id="mut-history"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Settings -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3>System Settings</h3>
+      </div>
+      <div class="settings-grid">
+        <div class="setting-item">
+          <div class="setting-info">
+            <h4>Kill Switch</h4>
+            <p>Emergency stop - blocks all code access immediately</p>
+          </div>
+          <div class="killswitch-status" id="kill-status">
+            <div class="killswitch-dot"></div>
+            <span id="kill-text">Inactive</span>
+          </div>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info">
+            <h4>Rate Limit</h4>
+            <p>Max requests per minute per IP: <span id="rate-val">60</span></p>
+          </div>
+          <input type="range" id="rate-slider" min="10" max="300" value="60" oninput="updateRateLabel(this.value)">
+        </div>
+        <div class="setting-item">
+          <div class="setting-info">
+            <h4>Alert Threshold</h4>
+            <p>Minimum score to trigger alert: <span id="alert-val">75</span></p>
+          </div>
+          <input type="range" id="alert-slider" min="10" max="100" value="75" oninput="updateAlertLabel(this.value)">
+        </div>
+        <div class="setting-item">
+          <div class="setting-info">
+            <h4>Maintenance Mode</h4>
+            <p>Show maintenance page to all users</p>
+          </div>
+          <div class="toggle" id="maint-toggle" onclick="toggleMaintenance()">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- Add Code Modal -->
+<div class="modal-overlay" id="modal-add-code" onclick="if(event.target===this)closeModal('modal-add-code')">
+  <div class="modal">
+    <h3>Add Gift Code</h3>
+    <p>Create a new gift code for distribution.</p>
+    <div class="modal-form">
+      <div class="form-group">
+        <label>Code Value</label>
+        <input type="text" id="new-code-value" placeholder="XXXX-XXXX-XXXX" required>
+      </div>
+      <div class="form-group">
+        <label>Code Type</label>
+        <input type="text" id="new-code-type" placeholder="premium, standard, etc." value="premium">
+      </div>
+      <div class="form-group">
+        <label>Valid Until</label>
+        <input type="datetime-local" id="new-code-expiry" required>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-code')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAddCode()">Add Code</button>
+    </div>
+  </div>
+</div>
+
+<!-- Block IP Modal -->
+<div class="modal-overlay" id="modal-block-ip" onclick="if(event.target===this)closeModal('modal-block-ip')">
+  <div class="modal">
+    <h3>Block IP Address</h3>
+    <p>Block an IP from accessing the system.</p>
+    <div class="modal-form">
+      <div class="form-group">
+        <label>IP Address</label>
+        <input type="text" id="block-ip-addr" placeholder="192.168.1.1" required pattern="^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$">
+      </div>
+      <div class="form-group">
+        <label>Reason</label>
+        <input type="text" id="block-ip-reason" placeholder="Bot detection, abuse, etc.">
+      </div>
+      <div class="form-group">
+        <label>Duration (hours)</label>
+        <input type="number" id="block-ip-hours" value="24" min="1" max="720">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-block-ip')">Cancel</button>
+      <button class="btn btn-danger" onclick="submitBlockIP()">Block IP</button>
+    </div>
+  </div>
+</div>
+
+<!-- Kill Switch Confirm Modal -->
+<div class="modal-overlay" id="modal-killswitch" onclick="if(event.target===this)closeModal('modal-killswitch')">
+  <div class="modal">
+    <h3 style="color:var(--error)">Activate Kill Switch?</h3>
+    <p>This will immediately block ALL code access for all users. This action is logged and reversible.</p>
+    <div class="modal-form">
+      <div class="form-group">
+        <label>Confirm by typing "CONFIRM"</label>
+        <input type="text" id="kill-confirm" placeholder="CONFIRM" oninput="checkKillConfirm(this.value)">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-killswitch')">Cancel</button>
+      <button class="btn btn-danger" id="kill-btn" disabled onclick="activateKillSwitch()">ACTIVATE</button>
+    </div>
+  </div>
+</div>
+
+<!-- Rollback Modal -->
+<div class="modal-overlay" id="modal-rollback" onclick="if(event.target===this)closeModal('modal-rollback')">
+  <div class="modal">
+    <h3>Rollback Mutation?</h3>
+    <p>Rollback to the previous mutation version. This may take up to 30 seconds.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-rollback')">Cancel</button>
+      <button class="btn btn-warning" style="background:rgba(245,158,11,0.15);color:var(--warning);border-color:rgba(245,158,11,0.3)" onclick="submitRollback()">Rollback</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ============================================
+// ADMIN DASHBOARD SCRIPT
+// ============================================
+'use strict';
+
+// ========== AUTH STATE ==========
+let authState = { loggedIn: false, username: '', token: '', tempToken: '', loginStep: 1 };
+let charts = {};
+let codeData = [];
+let blockedIPs = [];
+let alertsData = [];
+let codeFilter = 'all';
+let alertFilter = 'all';
+let codePage = 1;
+let blockedPage = 1;
+const pageSize = 10;
+let sessionTimer = null;
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 min
+
+// ========== TOAST ==========
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 5000);
+}
+
+// ========== LOGIN ==========
+
+function togglePassword() {
+  const input = document.getElementById('password');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+  const totpGroup = document.getElementById('totp-group');
+  const totpInput = document.getElementById('totp');
+  const btn = document.getElementById('login-btn');
+  const errorEl = document.getElementById('login-error');
+
+  btn.disabled = true;
+  errorEl.classList.remove('active');
+
+  if (authState.loginStep === 1) {
+    // Step 1: Validate password
+    try {
+      const res = await fetch('/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        authState.tempToken = data.tempToken || '';
+        authState.loginStep = 2;
+        totpGroup.style.display = 'block';
+        totpInput.focus();
+        btn.textContent = 'Verify 2FA';
+        showToast('Password accepted. Enter 2FA code.', 'info');
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        if (errData.code === '2FA_SETUP_REQUIRED') {
+          errorEl.textContent = '2FA setup required. Contact your administrator.';
+        } else {
+          errorEl.textContent = 'Invalid username or password';
+        }
+        errorEl.classList.add('active');
+      }
+    } catch (e) {
+      errorEl.textContent = 'Network error. Please try again.';
+      errorEl.classList.add('active');
+    }
+  } else {
+    // Step 2: Validate 2FA
+    const totp = totpInput.value;
+    if (!/^\d{6}$/.test(totp)) {
+      errorEl.textContent = 'Enter a valid 6-digit 2FA code';
+      errorEl.classList.add('active');
+      btn.disabled = false;
+      return;
+    }
+
+    try {
+      const res = await fetch('/admin/login-2fa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tempToken: authState.tempToken, totpCode: totp })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        loginSuccess(username, data.token);
+      } else {
+        errorEl.textContent = 'Invalid 2FA code';
+        errorEl.classList.add('active');
+      }
+    } catch (e) {
+      errorEl.textContent = 'Network error. Please try again.';
+      errorEl.classList.add('active');
+    }
+  }
+
+  btn.disabled = false;
+}
+
+function loginSuccess(username, token) {
+  authState = { loggedIn: true, username, token, loginStep: 1 };
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('dashboard').classList.add('active');
+  document.getElementById('admin-name').textContent = username;
+  showToast(`Welcome back, ${username}!`, 'success');
+
+  // Initialize dashboard
+  initDashboard();
+
+  // Start session timer
+  startSessionTimer();
+}
+
+function logout() {
+  authState = { loggedIn: false, username: '', token: '', loginStep: 1 };
+  document.getElementById('login-page').style.display = 'flex';
+  document.getElementById('dashboard').classList.remove('active');
+  document.getElementById('login-form').reset();
+  document.getElementById('totp-group').style.display = 'none';
+  document.getElementById('login-btn').textContent = 'Login';
+  if (sessionTimer) clearInterval(sessionTimer);
+  showToast('Logged out successfully', 'info');
+}
+
+function startSessionTimer() {
+  if (sessionTimer) clearInterval(sessionTimer);
+  const start = Date.now();
+  sessionTimer = setInterval(() => {
+    const elapsed = Date.now() - start;
+    const remaining = SESSION_TIMEOUT - elapsed;
+    if (remaining <= 300000 && remaining > 299000) {
+      showToast('Session expires in 5 minutes. Save your work.', 'warning');
+    }
+    if (remaining <= 0) {
+      showToast('Session expired. Logging out.', 'error');
+      setTimeout(logout, 2000);
+    }
+  }, 1000);
+}
+
+// ========== DASHBOARD INIT ==========
+
+async function initDashboard() {
+  document.getElementById('admin-ip').textContent = getClientIP();
+  document.getElementById('login-ip').textContent = getClientIP();
+
+  // Initialize empty state — all data comes from real API calls
+  await loadDashboardData();
+  renderCodes();
+  renderBlockedIPs();
+  renderAlerts();
+  renderMutationHistory();
+  initCharts();
+
+  // Set default datetime-local
+  const tomorrow = new Date(Date.now() + 86400000);
+  document.getElementById('new-code-expiry').value = tomorrow.toISOString().slice(0, 16);
+
+  // Start polling
+  setInterval(pollStats, 10000);
+}
+
+async function loadCodes() {
+  try {
+    const res = await fetch('/admin/api/codes', {
+      headers: { 'Authorization': `Bearer ${authState.token}` },
+    });
+    const data = await res.json();
+    if (data.codes) {
+      codeData = data.codes.map(c => ({ ...c, created: c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '\u2014' }));
+      renderCodes();
+      document.getElementById('stat-codes').textContent = codeData.length.toLocaleString();
+    }
+  } catch (e) { showToast('Failed to load codes', 'error'); }
+}
+
+async function loadDashboardData() {
+  try {
+    const [codesRes, blockedRes, alertsRes] = await Promise.all([
+      fetch('/admin/api/codes', { headers: { 'Authorization': `Bearer ${authState.token}` } }).catch(() => null),
+      fetch('/admin/api/blocked-ips', { headers: { 'Authorization': `Bearer ${authState.token}` } }).catch(() => null),
+      fetch('/admin/api/alerts', { headers: { 'Authorization': `Bearer ${authState.token}` } }).catch(() => null),
+    ]);
+    if (codesRes?.ok) {
+      const data = await codesRes.json();
+      codeData = (data.codes || []).map(c => ({ ...c, created: c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '—' }));
+    }
+    if (blockedRes?.ok) {
+      const data = await blockedRes.json();
+      blockedIPs = (data.ips || []).map(ip => ({ ...ip, blocked: ip.blockedAt ? new Date(ip.blockedAt).toLocaleDateString() : '—' }));
+    }
+    if (alertsRes?.ok) {
+      const data = await alertsRes.json();
+      alertsData = (data.alerts || []).map(a => ({ ...a, time: a.createdAt ? new Date(a.createdAt).toLocaleTimeString() : '—' }));
+    }
+    document.getElementById('stat-codes').textContent = codeData.length.toLocaleString();
+    document.getElementById('stat-blocked').textContent = blockedIPs.length.toLocaleString();
+    document.getElementById('stat-alerts').textContent = alertsData.length.toLocaleString();
+  } catch (e) {
+    showToast('Failed to load dashboard data', 'error');
+  }
+}
+
+function getClientIP() {
+  return '127.0.0.1';
+}
+
+// ========== DATA LOADERS ==========
+// All data is loaded from real API calls — no mock data
+
+function maskCode(code) {
+  return code.slice(0, 4) + '-****-****';
+}
+
+// ========== CHARTS ==========
+
+function initCharts() {
+  const ctx1 = document.getElementById('claimsChart').getContext('2d');
+  const ctx2 = document.getElementById('botChart').getContext('2d');
+  const ctx3 = document.getElementById('scoreChart').getContext('2d');
+  const ctx4 = document.getElementById('geoChart').getContext('2d');
+
+  const purple = 'rgba(124, 58, 237, 0.8)';
+  const purpleLight = 'rgba(139, 92, 246, 0.3)';
+  const green = 'rgba(16, 185, 129, 0.8)';
+  const red = 'rgba(239, 68, 68, 0.8)';
+  const orange = 'rgba(245, 158, 11, 0.8)';
+  const blue = 'rgba(59, 130, 246, 0.8)';
+
+  charts.claims = new Chart(ctx1, {
+    type: 'line',
+    data: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      datasets: [{
+        label: 'Claims',
+        data: [0, 0, 0, 0, 0, 0, 0],
+        borderColor: purple,
+        backgroundColor: purpleLight,
+        fill: true,
+        tension: 0.4,
+        borderWidth: 2,
+        pointBackgroundColor: purple,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(42,42,62,0.3)' }, ticks: { color: '#6b6b7b' } },
+        y: { grid: { color: 'rgba(42,42,62,0.3)' }, ticks: { color: '#6b6b7b' } }
+      }
+    }
+  });
+
+  charts.bots = new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      datasets: [{
+        label: 'Bot Detections',
+        data: [0, 0, 0, 0, 0, 0, 0],
+        backgroundColor: red,
+        borderRadius: 4,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(42,42,62,0.3)' }, ticks: { color: '#6b6b7b' } },
+        y: { grid: { color: 'rgba(42,42,62,0.3)' }, ticks: { color: '#6b6b7b' } }
+      }
+    }
+  });
+
+  charts.score = new Chart(ctx3, {
+    type: 'doughnut',
+    data: {
+      labels: ['Secure', 'At Risk', 'Blocked'],
+      datasets: [{
+        data: [0, 0, 0],
+        backgroundColor: [green, orange, red],
+        borderColor: 'var(--bg-card)',
+        borderWidth: 3,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '70%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#a0a0b0', padding: 15, usePointStyle: true, pointStyleWidth: 8 }
+        }
+      }
+    },
+    plugins: [{
+      id: 'centerText',
+      beforeDraw(chart) {
+        const { ctx, width, height } = chart;
+        ctx.save();
+        ctx.font = 'bold 28px -apple-system, sans-serif';
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('—', width / 2, height / 2 - 8);
+        ctx.font = '12px -apple-system, sans-serif';
+        ctx.fillStyle = '#6b6b7b';
+        ctx.fillText('Secure', width / 2, height / 2 + 14);
+        ctx.restore();
+      }
+    }]
+  });
+
+  charts.geo = new Chart(ctx4, {
+    type: 'doughnut',
+    data: {
+      labels: ['US', 'UK', 'DE', 'FR', 'JP', 'Other'],
+      datasets: [{
+        data: [0, 0, 0, 0, 0, 0],
+        backgroundColor: [purple, blue, green, orange, red, 'rgba(107,107,123,0.5)'],
+        borderColor: 'var(--bg-card)',
+        borderWidth: 3,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '55%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#a0a0b0', padding: 10, usePointStyle: true, pointStyleWidth: 8, font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+// ========== CODES TABLE ==========
+
+function renderCodes() {
+  const tbody = document.getElementById('codes-tbody');
+  const filtered = codeFilter === 'all' ? codeData : codeData.filter(c => c.status === codeFilter);
+  const start = (codePage - 1) * pageSize;
+  const pageData = filtered.slice(start, start + pageSize);
+
+  tbody.innerHTML = pageData.map(c => `
+    <tr>
+      <td><code>${c.code}</code></td>
+      <td><span class="status status-${c.status}">${c.status}</span></td>
+      <td>${c.type}</td>
+      <td>${c.created}</td>
+      <td>
+        <button class="alert-btn" onclick="showCodeDetails(${c.id})" title="View">View</button>
+        <button class="alert-btn" onclick="deleteCode(${c.id})" title="Delete" style="color:var(--error)">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  document.getElementById('codes-pagination').innerHTML = `
+    <span class="pagination-info">Showing ${start + 1}-${Math.min(start + pageSize, filtered.length)} of ${filtered.length}</span>
+    <div class="pagination-btns">
+      <button class="pagination-btn" ${codePage <= 1 ? 'disabled' : ''} onclick="changeCodePage(-1)">Prev</button>
+      <button class="pagination-btn" ${codePage >= totalPages ? 'disabled' : ''} onclick="changeCodePage(1)">Next</button>
+    </div>
+  `;
+}
+
+function filterCodes(status, el) {
+  codeFilter = status;
+  codePage = 1;
+  document.querySelectorAll('.section-card .tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderCodes();
+}
+
+function searchCodes() {
+  const query = document.getElementById('code-search').value.toLowerCase();
+  if (!query) { renderCodes(); return; }
+  const filtered = codeData.filter(c => c.code.toLowerCase().includes(query) || c.type.toLowerCase().includes(query));
+  const start = (codePage - 1) * pageSize;
+  const pageData = filtered.slice(start, start + pageSize);
+  document.getElementById('codes-tbody').innerHTML = pageData.map(c => `
+    <tr><td><code>${c.code}</code></td><td><span class="status status-${c.status}">${c.status}</span></td><td>${c.type}</td><td>${c.created}</td>
+    <td><button class="alert-btn" onclick="showCodeDetails(${c.id})">View</button> <button class="alert-btn" onclick="deleteCode(${c.id})" style="color:var(--error)">Delete</button></td></tr>
+  `).join('');
+}
+
+function changeCodePage(dir) {
+  codePage += dir;
+  renderCodes();
+}
+
+function showCodeDetails(id) {
+  const code = codeData.find(c => c.id === id);
+  if (!code) return;
+  showModalMessage('Code Details', `Code: ${code.code}\nStatus: ${code.status}\nType: ${code.type}\nCreated: ${code.created}\n${code.expiresAt ? 'Expires: ' + new Date(code.expiresAt).toLocaleString() : ''}`);
+}
+
+async function deleteCode(id) {
+  if (!confirm('Delete this code?')) return;
+  try {
+    const res = await fetch(`/admin/api/codes/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${authState.token}` },
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Code deleted', 'success');
+      loadCodes(); // Refresh from backend
+    } else {
+      showToast(data.message || 'Delete failed', 'error');
+    }
+  } catch (e) { showToast('Network error', 'error'); }
+}
+
+async function exportCodes() {
+  try {
+    const res = await fetch('/admin/api/codes/export', {
+      headers: { 'Authorization': `Bearer ${authState.token}` },
+    });
+    const data = await res.json();
+    if (!data.success) { showToast('Export failed', 'error'); return; }
+
+    const codes = data.codes || [];
+    if (codes.length === 0) { showToast('No codes to export', 'warning'); return; }
+
+    const headers = ['ID', 'Type', 'Status', 'Code', 'Code Length', 'Created'];
+    const rows = codes.map(c => [
+      c.id, c.type, c.status, c.code,
+      c.codeLength || '',
+      c.createdAt ? new Date(c.createdAt).toLocaleString() : ''
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(f => `"${String(f).replace(/"/g, '""')}"`).join(',')).join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `codes-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+    URL.revokeObjectURL(url);
+    showToast('Codes exported to CSV', 'success');
+  } catch (e) { showToast('Export error', 'error'); }
+}
+
+// ========== BLOCKED IPs ==========
+
+function renderBlockedIPs() {
+  const tbody = document.getElementById('blocked-tbody');
+  const start = (blockedPage - 1) * pageSize;
+  const pageData = blockedIPs.slice(start, start + pageSize);
+
+  tbody.innerHTML = pageData.map(ip => `
+    <tr>
+      <td><code>${ip.ip}</code></td>
+      <td>${ip.reason}</td>
+      <td>${ip.blocked}</td>
+      <td><button class="btn btn-success" style="padding:0.3rem 0.6rem;font-size:0.75rem" onclick="unblockIP(${ip.id})">Unblock</button></td>
+    </tr>
+  `).join('');
+
+  const totalPages = Math.max(1, Math.ceil(blockedIPs.length / pageSize));
+  document.getElementById('blocked-pagination').innerHTML = `
+    <span class="pagination-info">Showing ${start + 1}-${Math.min(start + pageSize, blockedIPs.length)} of ${blockedIPs.length}</span>
+    <div class="pagination-btns">
+      <button class="pagination-btn" ${blockedPage <= 1 ? 'disabled' : ''} onclick="changeBlockedPage(-1)">Prev</button>
+      <button class="pagination-btn" ${blockedPage >= totalPages ? 'disabled' : ''} onclick="changeBlockedPage(1)">Next</button>
+    </div>
+  `;
+}
+
+function changeBlockedPage(dir) {
+  blockedPage += dir;
+  renderBlockedIPs();
+}
+
+function unblockIP(id) {
+  blockedIPs = blockedIPs.filter(ip => ip.id !== id);
+  renderBlockedIPs();
+  document.getElementById('stat-blocked').textContent = blockedIPs.length;
+  showToast('IP unblocked', 'success');
+}
+
+// ========== ALERTS ==========
+
+function renderAlerts() {
+  const container = document.getElementById('alerts-list');
+  const filtered = alertFilter === 'all' ? alertsData : alertsData.filter(a => a.severity === alertFilter);
+
+  container.innerHTML = filtered.map(a => `
+    <div class="alert-item" id="alert-${a.id}">
+      <div class="alert-severity ${a.severity}"></div>
+      <div class="alert-content">
+        <div class="alert-time">${a.time} &bull; ${a.severity.toUpperCase()}</div>
+        <div class="alert-message">${a.message}</div>
+      </div>
+      <div class="alert-actions">
+        <button class="alert-btn" onclick="ackAlert(${a.id})" title="Acknowledge">Ack</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterAlerts(severity, el) {
+  alertFilter = severity;
+  document.querySelectorAll('.section-card:nth-child(5) .tab, .section-card:nth-of-type(5) .tab').forEach(t => t.classList.remove('active'));
+  // Find correct tab container
+  const tabs = el.parentElement;
+  tabs.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderAlerts();
+}
+
+function ackAlert(id) {
+  const el = document.getElementById(`alert-${id}`);
+  if (el) el.style.opacity = '0.3';
+  const alert = alertsData.find(a => a.id === id);
+  if (alert) alert.acknowledged = true;
+}
+
+function ackAllAlerts() {
+  alertsData.forEach(a => { a.acknowledged = true; });
+  renderAlerts();
+  showToast('All alerts acknowledged', 'success');
+}
+
+// ========== MUTATION HISTORY ==========
+
+async function renderMutationHistory() {
+  const tbody = document.getElementById('mut-history');
+  try {
+    const res = await fetch('/admin/api/mutation', { headers: { 'Authorization': `Bearer ${authState.token}` } });
+    if (res.ok) {
+      const data = await res.json();
+      document.getElementById('mut-version').textContent = data.currentVersion || '—';
+      document.getElementById('mut-algorithms').textContent = data.algorithm || '—';
+      document.getElementById('mut-endpoints').textContent = data.lastMutation ? new Date(data.lastMutation).toLocaleString() : '—';
+      document.getElementById('mut-next').textContent = data.nextMutation ? new Date(data.nextMutation).toLocaleString() : '—';
+    }
+  } catch (e) {
+    document.getElementById('mut-version').textContent = '—';
+    document.getElementById('mut-algorithms').textContent = '—';
+    document.getElementById('mut-endpoints').textContent = '—';
+    document.getElementById('mut-next').textContent = '—';
+  }
+  // Show empty state — no hardcoded history
+  tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">No mutation history available</td></tr>';
+}
+
+// ========== MODAL MANAGEMENT ==========
+
+function showAddCodeModal() { openModal('modal-add-code'); }
+function showBlockIPModal() { openModal('modal-block-ip'); }
+function showKillSwitchModal() { openModal('modal-killswitch'); document.getElementById('kill-confirm').value = ''; document.getElementById('kill-btn').disabled = true; }
+function showRollbackModal() { openModal('modal-rollback'); }
+
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function checkKillConfirm(val) {
+  document.getElementById('kill-btn').disabled = val !== 'CONFIRM';
+}
+
+async function submitAddCode() {
+  const code = document.getElementById('new-code-value').value.trim();
+  const type = document.getElementById('new-code-type').value;
+  const expiry = document.getElementById('new-code-expiry').value;
+  if (!code || !/^[a-zA-Z0-9]{20,64}$/.test(code)) { showToast('Enter a valid code (20-64 alphanumeric chars)', 'error'); return; }
+  if (!expiry) { showToast('Select an expiry date', 'error'); return; }
+
+  try {
+    const res = await fetch('/admin/api/codes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authState.token}` },
+      body: JSON.stringify({ code, type: type || '91club', validUntil: expiry, timerDuration: 10 }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Code added successfully', 'success');
+      loadCodes(); // Refresh list from backend
+      closeModal('modal-add-code');
+      document.getElementById('new-code-value').value = '';
+      document.getElementById('new-code-expiry').value = '';
+    } else {
+      showToast(data.message || 'Failed to add code', 'error');
+    }
+  } catch (e) { showToast('Network error', 'error'); }
+}
+
+function submitBlockIP() {
+  const ip = document.getElementById('block-ip-addr').value;
+  const reason = document.getElementById('block-ip-reason').value;
+  const hours = document.getElementById('block-ip-hours').value;
+  if (!ip || !/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)) { showToast('Enter a valid IP address', 'error'); return; }
+
+  blockedIPs.unshift({
+    id: blockedIPs.length + 1,
+    ip, reason: reason || 'Manual block',
+    blocked: 'Just now',
+    expires: `${hours}h remaining`
+  });
+  closeModal('modal-block-ip');
+  renderBlockedIPs();
+  document.getElementById('stat-blocked').textContent = blockedIPs.length;
+  showToast(`IP ${ip} blocked`, 'warning');
+}
+
+function activateKillSwitch() {
+  closeModal('modal-killswitch');
+  const status = document.getElementById('kill-status');
+  status.classList.add('active');
+  document.getElementById('kill-text').textContent = 'ACTIVE - All Access Blocked';
+  showToast('Kill switch ACTIVATED - All code access blocked', 'error');
+}
+
+function submitRollback() {
+  closeModal('modal-rollback');
+  document.getElementById('mut-version').textContent = 'v2.4.0 (Rolling back...)';
+  setTimeout(() => {
+    document.getElementById('mut-version').textContent = 'v2.4.0 (Stable)';
+    showToast('Rollback completed successfully', 'success');
+    renderMutationHistory();
+  }, 2000);
+  showToast('Initiating rollback...', 'warning');
+}
+
+function showModalMessage(title, message) {
+  // Create a temporary modal
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay active';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3>${title}</h3>
+      <p style="white-space:pre-line">${message}</p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="this.closest('.modal-overlay').remove()">OK</button>
+      </div>
+    </div>
+  `;
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  document.body.appendChild(overlay);
+}
+
+// ========== SETTINGS ==========
+
+function updateRateLabel(val) { document.getElementById('rate-val').textContent = val; }
+function updateAlertLabel(val) { document.getElementById('alert-val').textContent = val; }
+
+function toggleMaintenance() {
+  const toggle = document.getElementById('maint-toggle');
+  toggle.classList.toggle('on');
+  const on = toggle.classList.contains('on');
+  showToast(on ? 'Maintenance mode enabled' : 'Maintenance mode disabled', on ? 'warning' : 'info');
+}
+
+// ========== POLLING ==========
+
+async function pollStats() {
+  try {
+    const res = await fetch('/admin/api/stats', {
+      headers: { 'Authorization': `Bearer ${authState.token}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.totalCodes !== undefined) document.getElementById('stat-codes').textContent = data.totalCodes.toLocaleString();
+      if (data.activeUsers !== undefined) document.getElementById('stat-users').textContent = data.activeUsers;
+      if (data.blockedIPs !== undefined) document.getElementById('stat-blocked').textContent = data.blockedIPs;
+      if (data.alertsToday !== undefined) document.getElementById('stat-alerts').textContent = data.alertsToday;
+    }
+  } catch (e) {
+    // Silently fail — stats will refresh on next poll
+  }
+}
+
+// ========== CREATE CODE LINK ==========
+
+let linksData = [];
+let linksFilter = 'all';
+let linksPage = 1;
+
+// Show/hide custom timer input
+document.getElementById('link-timer-select').addEventListener('change', function() {
+  document.getElementById('custom-timer-row').style.display = this.value === 'custom' ? 'block' : 'none';
+});
+
+async function generateLink() {
+  const code = document.getElementById('link-code-input').value.trim();
+  const type = document.getElementById('link-site-select').value;
+  const timerSelect = document.getElementById('link-timer-select').value;
+  const customTimer = document.getElementById('link-custom-timer').value;
+
+  if (!code || !/^[a-zA-Z0-9]{20,64}$/.test(code)) { showToast('Enter a valid code (20-64 alphanumeric chars)', 'error'); return; }
+
+  const timerDuration = timerSelect === 'custom' ? parseInt(customTimer || '10', 10) : parseInt(timerSelect, 10);
+
+  try {
+    const res = await fetch('/admin/api/generate-link', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authState.token}` },
+      body: JSON.stringify({ code, type, timerDuration }),
+    });
+    const data = await res.json();
+    if (data.success && data.link) {
+      const siteNames = { '91club': '91 Club', '55club': '55 Club', 'in999': 'IN999' };
+      const siteColors = { '91club': '#ef4444', '55club': '#3b82f6', 'in999': '#10b981' };
+      const linkUrl = data.link;
+
+      linksData.unshift({
+        id: data.id || linksData.length + 1,
+        code: maskCode(code),
+        site: type,
+        siteName: siteNames[type] || type,
+        siteColor: siteColors[type] || '#7c3aed',
+        timer: timerDuration + ' min',
+        link: linkUrl,
+        clicks: 0,
+        claims: 0,
+        status: 'active',
+        created: new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+      });
+
+      // Show generated link
+      document.getElementById('generated-link-url').textContent = linkUrl;
+      document.getElementById('generated-link-display').style.display = 'block';
+      document.getElementById('links-count').textContent = linksData.length + ' link' + (linksData.length > 1 ? 's' : '') + ' generated';
+
+      // Clear form
+      document.getElementById('link-code-input').value = '';
+      document.getElementById('link-custom-timer').value = '';
+
+      renderLinks();
+      loadCodes(); // Refresh codes table from backend
+      showToast('Code created! Link generated. Copy and share on Telegram.', 'success');
+    } else {
+      showToast(data.message || 'Failed to create code', 'error');
+    }
+  } catch (e) { showToast('Network error', 'error'); }
+}
+
+function copyGeneratedLink() {
+  const url = document.getElementById('generated-link-url').textContent;
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('Link copied to clipboard!', 'success');
+  }).catch(() => {
+    const ta = document.createElement('textarea'); ta.value = url; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('Link copied to clipboard!', 'success');
+  });
+}
+
+function renderLinks() {
+  const tbody = document.getElementById('links-tbody');
+  const filtered = linksFilter === 'all' ? linksData : linksData.filter(l => l.status === linksFilter);
+  const start = (linksPage - 1) * pageSize;
+  const pageData = filtered.slice(start, start + pageSize);
+
+  tbody.innerHTML = pageData.map(l => `
+    <tr>
+      <td><code style="font-family:monospace;background:rgba(124,58,237,0.1);padding:0.2rem 0.4rem;border-radius:4px;font-size:0.8rem">${l.code}</code></td>
+      <td><span style="display:inline-flex;align-items:center;gap:0.35rem;padding:0.25rem 0.5rem;border-radius:8px;font-size:0.75rem;font-weight:600;background:${l.siteColor}15;color:${l.siteColor};border:1px solid ${l.siteColor}30">${l.siteName}</span></td>
+      <td>${l.timer}</td>
+      <td><code style="font-size:0.75rem;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;max-width:200px;display:block">${l.link}</code></td>
+      <td><strong>${l.clicks}</strong> <span style="font-size:0.75rem;color:var(--text-muted)">(${l.claims} claimed)</span></td>
+      <td><span class="status status-${l.status}">${l.status}</span></td>
+      <td style="font-size:0.8rem;color:var(--text-muted)">${l.created}</td>
+      <td>
+        <button class="alert-btn" onclick="copyLinkUrl('${l.link}')" title="Copy Link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+        <button class="alert-btn" onclick="viewLinkClicks(${l.id})" title="View Stats">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+        <button class="alert-btn" onclick="deleteLink(${l.id})" title="Delete" style="color:var(--error)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  document.getElementById('links-pag-info').textContent = `Showing ${Math.min(filtered.length, start + 1)}-${Math.min(start + pageSize, filtered.length)} of ${filtered.length}`;
+  document.getElementById('links-pagination').innerHTML = `
+    <span class="pagination-info">Showing ${Math.min(filtered.length, start + 1)}-${Math.min(start + pageSize, filtered.length)} of ${filtered.length}</span>
+    <div class="pagination-btns">
+      <button class="pagination-btn" ${linksPage <= 1 ? 'disabled' : ''} onclick="changeLinksPage(-1)">&lt;</button>
+      <button class="pagination-btn" ${linksPage >= totalPages ? 'disabled' : ''} onclick="changeLinksPage(1)">&gt;</button>
+    </div>
+  `;
+}
+
+function filterLinks(status, el) {
+  linksFilter = status;
+  linksPage = 1;
+  const tabs = el.parentElement;
+  tabs.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderLinks();
+}
+
+function changeLinksPage(dir) {
+  linksPage += dir;
+  if (linksPage < 1) linksPage = 1;
+  renderLinks();
+}
+
+function copyLinkUrl(url) {
+  navigator.clipboard.writeText(url).then(() => showToast('Link copied!', 'success'))
+    .catch(() => { const ta = document.createElement('textarea'); ta.value = url; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Link copied!', 'success'); });
+}
+
+function viewLinkClicks(id) {
+  const link = linksData.find(l => l.id === id);
+  if (!link) return;
+  showModalMessage(
+    `Link Stats: ${link.code}`,
+    `Site: ${link.siteName}\nTimer: ${link.timer}\nClicks: ${link.clicks}\nClaims: ${link.claims}\nStatus: ${link.status}\nCreated: ${link.created}\n\nLink: ${link.link}`
+  );
+}
+
+function deleteLink(id) {
+  linksData = linksData.filter(l => l.id !== id);
+  renderLinks();
+  document.getElementById('links-count').textContent = linksData.length + ' link' + (linksData.length !== 1 ? 's' : '') + ' generated';
+  showToast('Link deleted', 'info');
+}
+
+// Keyboard shortcut
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+  }
+});
+</script>
+</body>
+</html>

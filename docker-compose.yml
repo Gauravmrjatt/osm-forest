@@ -1,0 +1,358 @@
+# ============================================================================
+# OSM ARMY FORTRESS - Docker Compose (Production)
+# ============================================================================
+# Full production deployment stack with:
+#   - Fortress application (Node.js)
+#   - MongoDB (primary database)
+#   - Redis (rate limiting, sessions, caching)
+#   - Nginx (reverse proxy, SSL termination, static file serving)
+#   - Watchtower (automatic container updates)
+#   - Log rotation sidecar
+#
+# Deploy:
+#   docker-compose up -d
+#
+# View logs:
+#   docker-compose logs -f fortress
+#
+# Update:
+#   docker-compose pull && docker-compose up -d
+# ============================================================================
+
+version: '3.8'
+
+services:
+  # ==========================================================================
+  # FORTRESS APPLICATION
+  # ==========================================================================
+  fortress:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: osm-fortress
+    hostname: fortress
+    restart: unless-stopped
+
+    ports:
+      - "3000:3000"
+
+    env_file:
+      - .env
+
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      # Override database URIs for Docker network
+      - MONGODB_URI=mongodb://${MONGODB_ADMIN_USER:-admin}:${MONGODB_ADMIN_PASS:-change-this-password}@mongodb:27017/osm_fortress?authSource=admin&retryWrites=true&w=majority
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-change-redis-password}@redis:6379/0
+
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+    volumes:
+      # Persistent logs (read-write)
+      - fortress_logs:/app/logs
+      # Data directory for runtime storage
+      - ./data:/app/data
+      # node_modules stays inside container image — NO full /app bind mount
+
+    networks:
+      - fortress-net
+
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    # read_only: true  # Disabled — conflicts with /app/logs volume mount
+    # tmpfs:
+    #   - /tmp:noexec,nosuid,size=100m,uid=1001,gid=1001
+    #   - /app/logs:noexec,nosuid,size=50m,uid=1001,gid=1001
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+    # Graceful shutdown
+    stop_grace_period: 35s
+    stop_signal: SIGTERM
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+        labels: "osm-fortress,production"
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+
+  # ==========================================================================
+  # MONGODB DATABASE
+  # ==========================================================================
+  mongodb:
+    image: mongo:7
+    container_name: osm-mongodb
+    hostname: mongodb
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:27017:27017"  # Bind to localhost only
+
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_ADMIN_USER:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_ADMIN_PASS:-change-this-password}
+      - MONGO_INITDB_DATABASE=osm_fortress
+
+    networks:
+      - fortress-net
+
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+    # Health check (authenticated — matches MONGO_INITDB_* env)
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh -u \"$MONGO_INITDB_ROOT_USERNAME\" -p \"$MONGO_INITDB_ROOT_PASSWORD\" --authenticationDatabase admin --eval 'quit(db.adminCommand(\"ping\").ok ? 0 : 1)' --quiet"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+
+    command:
+      - "mongod"
+      - "--auth"
+      - "--bind_ip_all"
+      - "--wiredTigerCacheSizeGB=0.25"
+      - "--journal"
+      - "--quiet"
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  # ==========================================================================
+  # REDIS CACHE & SESSION STORE
+  # ==========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: osm-redis
+    hostname: redis
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:6379:6379"  # Bind to localhost only
+
+    volumes:
+      - redis_data:/data
+
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-change-redis-password}
+
+    networks:
+      - fortress-net
+
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETGID
+      - SETUID
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+    # Health check (AUTH first, then ping — matches REDIS_PASSWORD env)
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$REDIS_PASSWORD\" ping | grep -q PONG"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+    command:
+      - "redis-server"
+      - "--requirepass"
+      - "${REDIS_PASSWORD:-change-redis-password}"
+      - "--appendonly"
+      - "yes"
+      - "--maxmemory"
+      - "128mb"
+      - "--maxmemory-policy"
+      - "allkeys-lru"
+      - "--loglevel"
+      - "warning"
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ==========================================================================
+  # WATCHTOWER (Auto-Updates)
+  # ==========================================================================
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: osm-watchtower
+    restart: unless-stopped
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=3600  # Check every hour
+      - WATCHTOWER_INCLUDE_RESTARTING=true
+      - WATCHTOWER_NOTIFICATIONS=shoutrrr
+      - WATCHTOWER_NOTIFICATION_URL=${WATCHTOWER_NOTIFICATION_URL:-}
+      - WATCHTOWER_LABEL_ENABLE=true  # Only update containers with com.centurylinklabs.watchtower.enable=true
+      - TZ=UTC
+
+    # Only monitor specific containers
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+
+    networks:
+      - fortress-net
+
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+  # ==========================================================================
+  # LOG AGGREGATION SIDECAR
+  # ==========================================================================
+  logrotate:
+    image: alpine:latest
+    container_name: osm-logrotate
+    restart: unless-stopped
+
+    volumes:
+      - fortress_logs:/logs
+
+    command: >
+      sh -c "
+        apk add --no-cache logrotate &&
+        echo '0 * * * * /usr/sbin/logrotate /etc/logrotate.conf' | crontab - &&
+        crond -f
+      "
+
+    networks:
+      - fortress-net
+
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 32M
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+# ============================================================================
+# VOLUMES
+# ============================================================================
+volumes:
+  mongodb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/mongodb
+
+  mongodb_config:
+    driver: local
+
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/redis
+
+  fortress_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./logs
+
+# ============================================================================
+# NETWORKS
+# ============================================================================
+networks:
+  fortress-net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: osm-fortress0
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
+    internal: false
+    attachable: false

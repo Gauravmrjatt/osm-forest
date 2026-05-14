@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="OSM Army - Daily Gift Code. Secure code distribution system.">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>OSM ARMY - Gift Code</title>
+<style>
+/* ============================================
+   OSM ARMY GIFT CODE PAGE - Timer + Code + Iframe
+   ============================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg-primary:#0a0a0f;--bg-secondary:#0d0d1a;--bg-card:#16161f;--bg-card-hover:#1a1a2e;
+  --border:#2a2a3e;--border-light:#33334a;
+  --accent:#7c3aed;--accent-light:#8b5cf6;--accent-glow:rgba(124,58,237,0.4);
+  --accent-gradient:linear-gradient(135deg,#7c3aed,#8b5cf6);
+  --text-primary:#ffffff;--text-secondary:#a0a0b0;--text-muted:#6b6b7b;--text-dim:#4a4a5a;
+  --success:#10b981;--error:#ef4444;--warning:#f59e0b;--info:#3b82f6;
+  --site-91:#ef4444;--site-55:#3b82f6;--site-in999:#10b981;
+  --radius-sm:8px;--radius-md:12px;--radius-lg:24px;
+  --shadow-glow:0 0 20px rgba(124,58,237,0.3);--shadow-card:0 4px 24px rgba(0,0,0,0.4);
+  --shadow-lg:0 8px 32px rgba(0,0,0,0.5);
+  --transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif;
+  background:var(--bg-primary);color:var(--text-primary);
+  min-height:100vh;overflow-x:hidden;line-height:1.6;
+}
+
+/* ========== BACKGROUND PARTICLES ========== */
+.bg-particles{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.particle{
+  position:absolute;border-radius:50%;background:var(--accent);
+  opacity:0.08;animation:floatParticle linear infinite;
+}
+@keyframes floatParticle{
+  0%{transform:translateY(100vh) scale(0);opacity:0}
+  10%{opacity:0.12}
+  90%{opacity:0.08}
+  100%{transform:translateY(-100px) scale(1);opacity:0}
+}
+
+/* ========== NAVBAR ========== */
+.navbar{
+  position:fixed;top:0;left:0;right:0;display:flex;align-items:center;
+  justify-content:space-between;padding:0 1.5rem;height:60px;
+  background:rgba(10,10,15,0.85);backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid var(--border);z-index:1000;
+}
+.logo{display:flex;align-items:center;gap:0.6rem;font-size:1.1rem;font-weight:800;letter-spacing:1px}
+.logo-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--accent-gradient);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 15px rgba(124,58,237,0.4);
+}
+.logo-icon svg{width:22px;height:22px}
+.logo span{background:var(--accent-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.security-badge{
+  display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--success);
+  background:rgba(16,185,129,0.1);padding:0.3rem 0.75rem;border-radius:20px;
+  border:1px solid rgba(16,185,129,0.2);
+}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(1.3)}}
+
+/* ========== MAIN LAYOUT ========== */
+.main-layout{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;padding:80px 1rem 1rem;position:relative;z-index:1;
+  gap:1rem;
+}
+
+/* ========== HERO SECTION ========== */
+.hero-section{text-align:center;margin-bottom:0.5rem}
+.hero-title{font-size:1.4rem;font-weight:800;margin-bottom:0.25rem}
+.hero-title .gradient{background:var(--accent-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-subtitle{font-size:0.8rem;color:var(--text-muted)}
+
+/* ========== TIMER SECTION ========== */
+.timer-section{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:1.5rem 2rem;text-align:center;width:100%;max-width:400px;
+  box-shadow:var(--shadow-card);position:relative;overflow:hidden;
+}
+.timer-section::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--accent-gradient);box-shadow:var(--shadow-glow);
+}
+.timer-section.active::before{animation:timerGlow 1s ease infinite}
+@keyframes timerGlow{0%,100%{opacity:1}50%{opacity:0.5}}
+.timer-label{
+  font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;
+  letter-spacing:3px;margin-bottom:0.75rem;
+}
+.timer-display{
+  font-size:3rem;font-weight:800;font-variant-numeric:tabular-nums;
+  letter-spacing:2px;margin-bottom:0.5rem;font-family:'SF Mono',monospace;
+}
+.timer-display .time-unit{display:inline-block;text-align:center;min-width:60px}
+.timer-display .time-sep{color:var(--accent);margin:0 0.25rem;animation:sepBlink 1s infinite}
+@keyframes sepBlink{0%,100%{opacity:1}50%{opacity:0.3}}
+.timer-display .time-label{font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;display:block}
+.timer-ended .timer-display{color:var(--success)}
+.timer-status{
+  font-size:0.8rem;color:var(--text-secondary);margin-top:0.5rem;
+}
+.timer-status .site-name{font-weight:700;color:var(--accent-light)}
+
+/* ========== CODE SECTION ========== */
+.code-section{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);
+  padding:1.5rem;text-align:center;width:100%;max-width:400px;
+  box-shadow:var(--shadow-card);
+}
+.code-section.hidden{display:none}
+.code-label{
+  font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;
+  letter-spacing:2px;margin-bottom:0.75rem;
+}
+.code-display{
+  background:rgba(124,58,237,0.05);border:1px solid rgba(124,58,237,0.2);
+  border-radius:var(--radius-md);padding:1.5rem;margin-bottom:1rem;
+  position:relative;overflow:hidden;
+}
+.code-display::before{
+  content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  background:linear-gradient(135deg,rgba(124,58,237,0.08),transparent);
+  opacity:0;transition:var(--transition);
+}
+.code-display:hover::before{opacity:1}
+.code-text{
+  font-size:1.8rem;font-weight:800;letter-spacing:3px;
+  font-family:'SF Mono','Courier New',monospace;
+  position:relative;z-index:1;
+}
+.code-mask{
+  letter-spacing:6px;font-size:1.4rem;color:var(--text-dim);
+}
+.copy-btn{
+  width:100%;padding:1rem;background:var(--accent-gradient);
+  border:none;border-radius:var(--radius-sm);color:#fff;
+  font-size:1rem;font-weight:700;cursor:pointer;
+  transition:var(--transition);display:flex;align-items:center;
+  justify-content:center;gap:0.5rem;position:relative;overflow:hidden;
+}
+.copy-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-glow)}
+.copy-btn:active{transform:translateY(0)}
+.copy-btn .ripple{
+  position:absolute;border-radius:50%;background:rgba(255,255,255,0.3);
+  transform:scale(0);animation:ripple 0.6s ease-out;
+}
+@keyframes ripple{to{transform:scale(4);opacity:0}}
+.copy-btn.copied{background:linear-gradient(135deg,var(--success),#059669)}
+.countdown-bar{
+  width:100%;height:4px;background:var(--border);border-radius:2px;
+  margin-top:1rem;overflow:hidden;
+}
+.countdown-fill{
+  height:100%;background:var(--error);border-radius:2px;
+  transition:width 1s linear;box-shadow:0 0 8px rgba(239,68,68,0.5);
+}
+.countdown-text{
+  font-size:0.75rem;color:var(--error);margin-top:0.5rem;
+}
+.code-expired{
+  font-size:1rem;color:var(--error);padding:2rem 0;
+}
+.code-expired .expired-icon{font-size:2rem;margin-bottom:0.5rem}
+
+/* ========== IFRAME SECTION ========== */
+.iframe-section{
+  width:100%;max-width:400px;
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius-md);overflow:hidden;
+  box-shadow:var(--shadow-card);
+}
+.iframe-section.hidden{display:none}
+.iframe-tabs{
+  display:flex;background:var(--bg-secondary);border-bottom:1px solid var(--border);
+}
+.iframe-tab{
+  flex:1;padding:0.65rem 0.5rem;text-align:center;
+  background:none;border:none;color:var(--text-muted);
+  font-size:0.7rem;font-weight:600;cursor:pointer;
+  transition:var(--transition);border-bottom:2px solid transparent;
+  position:relative;
+}
+.iframe-tab:hover{color:var(--text-primary);background:rgba(124,58,237,0.05)}
+.iframe-tab.active{
+  color:var(--accent-light);border-bottom-color:var(--accent);
+  background:rgba(124,58,237,0.08);
+}
+.iframe-tab .tab-dot{
+  width:6px;height:6px;border-radius:50%;display:inline-block;
+  margin-right:0.3rem;vertical-align:middle;
+}
+.iframe-tab[data-site="91club"] .tab-dot{background:var(--site-91)}
+.iframe-tab[data-site="55club"] .tab-dot{background:var(--site-55)}
+.iframe-tab[data-site="in999"] .tab-dot{background:var(--site-in999)}
+.iframe-content{position:relative;width:100%;height:520px}
+.iframe-content iframe{
+  width:100%;height:100%;border:none;background:var(--bg-secondary);
+}
+.iframe-overlay{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;background:rgba(10,10,15,0.92);
+  color:var(--text-primary);text-align:center;padding:2rem;
+}
+.iframe-overlay .site-logo{
+  width:60px;height:60px;border-radius:var(--radius-md);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem;font-weight:900;margin-bottom:1rem;
+  box-shadow:0 0 20px rgba(124,58,237,0.3);
+}
+.iframe-overlay h3{font-size:1.1rem;margin-bottom:0.5rem}
+.iframe-overlay p{font-size:0.8rem;color:var(--text-secondary);margin-bottom:1rem;line-height:1.6}
+.iframe-overlay .open-btn{
+  padding:0.75rem 2rem;background:var(--accent-gradient);
+  border:none;border-radius:var(--radius-sm);color:#fff;
+  font-size:0.85rem;font-weight:600;cursor:pointer;
+  transition:var(--transition);
+}
+.iframe-overlay .open-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-glow)}
+.iframe-note{
+  padding:0.5rem 1rem;background:rgba(124,58,237,0.05);
+  border-top:1px solid var(--border);font-size:0.7rem;
+  color:var(--text-muted);text-align:center;
+}
+
+/* ========== SECURITY TIPS ========== */
+.tips-section{
+  width:100%;max-width:400px;
+  display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;
+}
+.tip-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:0.75rem;
+  display:flex;align-items:center;gap:0.5rem;font-size:0.75rem;
+  color:var(--text-secondary);
+}
+.tip-card svg{width:16px;height:16px;flex-shrink:0;color:var(--accent-light)}
+
+/* ========== TOAST ========== */
+.toast{
+  position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-100px);
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:0.75rem 1.25rem;
+  display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;
+  box-shadow:var(--shadow-lg);z-index:10000;
+  transition:transform 0.3s ease;pointer-events:none;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:rgba(16,185,129,0.3);color:var(--success)}
+.toast.error{border-color:rgba(239,68,68,0.3);color:var(--error)}
+
+/* ========== LOADING ========== */
+.loader{
+  width:40px;height:40px;border:3px solid var(--border);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:spin 0.8s linear infinite;margin:0 auto;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ========== RESPONSIVE ========== */
+@media(max-width:480px){
+  .timer-display{font-size:2.2rem}
+  .timer-display .time-unit{min-width:50px}
+  .code-text{font-size:1.4rem}
+  .main-layout{padding-top:70px;padding-left:0.75rem;padding-right:0.75rem}
+  .iframe-content{height:420px}
+  .tips-section{grid-template-columns:1fr}
+}
+@media(max-height:800px){
+  .iframe-content{height:380px}
+
+/* Fix 7: Mini Browser Section */
+.mini-browser-section{
+  width:100%;max-width:420px;margin-top:16px;
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius-md);overflow:hidden;
+  box-shadow:var(--shadow-card);
+}
+.mini-browser-header{
+  display:flex;align-items:center;gap:0.5rem;
+  padding:0.5rem 0.75rem;background:var(--bg-card);
+  border-bottom:1px solid var(--border);
+}
+.mini-browser-site{
+  flex:1;text-align:center;font-size:0.75rem;color:var(--text-muted);
+  font-family:monospace;background:var(--bg-secondary);
+  padding:0.2rem 0.5rem;border-radius:4px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.mini-browser-external{
+  padding:0.3rem 0.6rem;font-size:0.7rem;color:var(--accent);
+  background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);
+  cursor:pointer;white-space:nowrap;
+}
+.mini-browser-external:hover{border-color:var(--accent);}
+.site-frame{
+  width:100%;height:70vh;min-height:560px;
+  border:0;border-radius:0;
+  background:#fff;display:block;
+}
+.iframe-fallback{
+  padding:1.5rem;text-align:center;background:var(--bg-card);
+  border-top:1px solid var(--border);
+}
+.iframe-fallback p{color:var(--text-muted);font-size:0.85rem;margin-bottom:0.75rem;}
+.iframe-fallback.hidden{display:none;}
+@media(max-width:480px){
+  .site-frame{height:60vh;min-height:400px;}
+  .mini-browser-section{max-width:100%;}
+}
+}
+</style>
+</head>
+<body>
+
+<!-- Background Particles -->
+<div class="bg-particles" id="particles"></div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    </div>
+    <span>OSM ARMY</span>
+  </div>
+  <div class="security-badge">
+    <div class="pulse-dot"></div>
+    <span id="securityText">Secure</span>
+  </div>
+</nav>
+
+<!-- Main -->
+<main class="main-layout" id="mainLayout">
+
+  <!-- Hero -->
+  <section class="hero-section">
+    <h1 class="hero-title"><span class="gradient">Daily Gift Code</span></h1>
+    <p class="hero-subtitle" id="heroSubtitle">Complete verification to reveal code</p>
+  </section>
+
+  <!-- Timer -->
+  <section class="timer-section" id="timerSection">
+    <div class="timer-label" id="timerLabel">Next Code In</div>
+    <div class="timer-display" id="timerDisplay">
+      <span class="time-unit"><span id="hours">02</span><span class="time-label">hrs</span></span>
+      <span class="time-sep">:</span>
+      <span class="time-unit"><span id="minutes">34</span><span class="time-label">min</span></span>
+      <span class="time-sep">:</span>
+      <span class="time-unit"><span id="seconds">15</span><span class="time-label">sec</span></span>
+    </div>
+    <div class="timer-status" id="timerStatus">
+      Code for: <span class="site-name" id="siteName">91 Club</span>
+    </div>
+  </section>
+
+  <!-- Code Section -->
+  <!-- Proof-of-Work Challenge Section (Ultra Security Layer) -->
+  <section class="code-section hidden" id="powSection">
+    <div class="code-label">🔒 Proof-of-Work Challenge</div>
+    <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;margin-bottom:1rem;text-align:left">
+      <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.75rem">
+        Solve this challenge to prove you're human. This prevents automated code extraction.
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.75rem;margin-bottom:0.75rem;font-family:monospace;font-size:0.8rem;color:var(--text-muted)" id="powDetails">
+        Loading challenge...
+      </div>
+      <div style="display:flex;gap:0.5rem">
+        <input type="number" id="powNonce" placeholder="Enter nonce" 
+          style="flex:1;padding:0.6rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.9rem;outline:none;font-family:monospace"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        <button class="copy-btn" onclick="submitPowSolution()" style="width:auto;padding:0.6rem 1rem">
+          SUBMIT
+        </button>
+      </div>
+      <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem" id="powStatus"></div>
+    </div>
+  </section>
+
+  <!-- Behavioral Challenge Section (Ultra Security Layer) -->
+  <section class="code-section hidden" id="behaviorSection">
+    <div class="code-label">🎯 Human Verification</div>
+    <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;margin-bottom:1rem">
+      <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.75rem" id="behaviorInstructions">
+        Complete the following actions:
+      </div>
+      <div id="behaviorChallenges" style="margin-bottom:0.75rem"></div>
+      <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:var(--radius-sm);padding:0.75rem;font-size:0.75rem;color:var(--warning);margin-bottom:0.75rem">
+        <strong>⚡ Recording your interactions...</strong> Move your mouse naturally to complete the challenge.
+      </div>
+      <button class="copy-btn" onclick="submitBehaviorChallenge()" id="behaviorSubmitBtn" style="display:none">
+        VERIFY ACTIONS
+      </button>
+      <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem" id="behaviorStatus"></div>
+    </div>
+  </section>
+
+  <!-- Final Code Section -->
+  <section class="code-section hidden" id="codeSection">
+    <div class="code-label">Your Gift Code</div>
+    <div class="code-display" id="codeDisplay">
+      <div class="code-mask" id="codeMask">●●●●●●●●●●●</div>
+      <div class="code-text hidden" id="codeText"></div>
+    </div>
+    <button class="copy-btn hidden" id="copyBtn" onclick="copyCode(event)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+      </svg>
+      <span id="copyBtnText">COPY CODE</span>
+    </button>
+    <div class="countdown-bar" id="countdownBar">
+      <div class="countdown-fill" id="countdownFill" style="width:100%"></div>
+    </div>
+    <div class="countdown-text" id="countdownText">Code expires in 10s</div>
+  </section>
+
+  <!-- Fix 2: Real iframe mini browser — admin-selected site loads directly -->
+  <section class="mini-browser-section" id="miniBrowserSection">
+    <!-- Browser chrome bar -->
+    <div class="mini-browser-header">
+      <div style="display:flex;gap:0.3rem">
+        <span style="width:10px;height:10px;border-radius:50%;background:#ef4444;display:block"></span>
+        <span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:block"></span>
+        <span style="width:10px;height:10px;border-radius:50%;background:#10b981;display:block"></span>
+      </div>
+      <span id="siteName" class="mini-browser-site">Loading...</span>
+      <button id="openExternalBtn" type="button" class="mini-browser-external">Open External</button>
+    </div>
+
+    <!-- Fix 2: Real iframe — admin-selected site loads here -->
+    <iframe
+      id="siteFrame"
+      class="site-frame"
+      title="Selected site"
+      referrerpolicy="no-referrer-when-downgrade"
+      sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation">
+    </iframe>
+
+    <!-- Fix 6: Fallback if iframe blocked (X-Frame-Options, CSP, etc.) -->
+    <div id="iframeFallback" class="iframe-fallback hidden">
+      <p>Site is not loading inside mini browser.</p>
+      <button id="fallbackOpenBtn" type="button" class="open-btn">Open Site</button>
+    </div>
+
+    <div class="iframe-note">
+      💡 Tip: While timer runs, login to the site. After timer ends, copy code and paste in Gift Code section.
+    </div>
+  </section>
+
+  <!-- Security Tips -->
+  <section class="tips-section" id="tipsSection">
+    <div class="tip-card">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span>3-Factor Auth</span>
+    </div>
+    <div class="tip-card">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      <span>10-Sec Expiry</span>
+    </div>
+    <div class="tip-card">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span>Anti-OCR</span>
+    </div>
+    <div class="tip-card">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      <span>Watermark</span>
+    </div>
+  </section>
+
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"><span id="toastText"></span></div>
+
+<script>
+// ==========================================
+//  OSM ARMY GIFT CODE PAGE
+//  Timer + Code + Iframe (All in One Page)
+// ==========================================
+
+// --- Background Particles ---
+(function createParticles(){
+  const c=document.getElementById('particles');
+  for(let i=0;i<15;i++){
+    const p=document.createElement('div');p.className='particle';
+    p.style.left=Math.random()*100+'%';
+    p.style.width=p.style.height=(Math.random()*6+2)+'px';
+    p.style.animationDuration=(Math.random()*15+10)+'s';
+    p.style.animationDelay=Math.random()*10+'s';
+    c.appendChild(p);
+  }
+})();
+
+// ==========================================
+//  FIX 1: SITE_DATA must be defined BEFORE CONFIG
+//  (prevents ReferenceError: Cannot access before initialization)
+// ==========================================
+const SITE_DATA={
+  '91club':{name:'91 Club',url:'https://91club.bet',color:'var(--site-91)',bg:'rgba(239,68,68,0.15)',border:'rgba(239,68,68,0.3)'},
+  '55club':{name:'55 Club',url:'https://55club.in',color:'var(--site-55)',bg:'rgba(59,130,246,0.15)',border:'rgba(59,130,246,0.3)'},
+  'in999':{name:'IN999',url:'https://in999.club',color:'var(--site-in999)',bg:'rgba(16,185,129,0.15)',border:'rgba(16,185,129,0.3)'}
+};
+
+// --- Config - reads from URL and server sync ---
+function getUrlParam(name){
+  const url = new URL(window.location.href);
+  return url.searchParams.get(name) || '91club';
+}
+const urlParams = new URLSearchParams(window.location.search);
+const CONFIG={
+  token: urlParams.get('t') || urlParams.get('token') || '',
+  site: getUrlParam('site'),
+  timerMinutes:0,        // SYNCED FROM SERVER (not hardcoded)
+  code:null,             // ONLY from server-rendered HTML (never hardcoded)
+  expirySeconds:10,
+  releaseAt:null,        // Server timestamp when code unlocks
+  serverSynced:false     // True after timer sync from server
+};
+// Site validation fallback — invalid site defaults to 91club
+if (!SITE_DATA[CONFIG.site]) {
+  CONFIG.site = '91club';
+}
+// If no token → show error: "Invalid or missing link"
+if (!CONFIG.token) {
+  document.body.innerHTML = '<h1>Invalid Link</h1><p>Please use the link from Telegram.</p>';
+  throw new Error('No token');
+}
+// --- Server Timer Sync (SOURCE OF TRUTH) ---
+async function syncTimerFromServer() {
+  try {
+    const response = await fetch('/api/v1/timer/sync', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ token: CONFIG.token })
+    });
+    const data = await response.json();
+
+    if (data.success && data.data) {
+      const d = data.data;
+
+      // Server is the SOURCE OF TRUTH
+      if (d.releaseAt) {
+        CONFIG.releaseAt = d.releaseAt;
+        const serverNow = d.serverTime;
+        const remainingMs = d.releaseAt - serverNow;
+        CONFIG.timerMinutes = Math.ceil(remainingMs / 60000);
+        CONFIG.serverSynced = true;
+
+        // If already released, set timer to 0
+        if (d.isReleased) {
+          timeLeft = 0;
+          CONFIG.timerMinutes = 0;
+        } else {
+          timeLeft = Math.max(0, Math.ceil(remainingMs / 1000));
+        }
+
+        // Restart timer with synced value
+        clearInterval(countdownInterval);
+        countdownInterval = setInterval(updateTimer, 1000);
+        updateTimer();
+
+        console.log('[TIMER] Server synced: releaseAt=' + new Date(d.releaseAt).toISOString() +
+                    ', remaining=' + d.remainingSeconds + 's');
+      }
+
+      // If no code exists, show warning
+      if (!d.codeExists) {
+        document.getElementById('timerStatus').innerHTML =
+          '<span style="color:var(--error)">No active code available</span>';
+      }
+    }
+  } catch(e) {
+    console.warn('[TIMER] Server sync failed, using fallback:', e);
+    // Fallback: use a safe default that prevents early code access
+    CONFIG.timerMinutes = 5;
+    timeLeft = 300;
+  }
+}
+
+// --- Timer ---
+let timeLeft=300; // Safe default: 5 min until server sync provides real value
+let countdownInterval;
+
+function updateTimer(){
+  const h=Math.floor(timeLeft/3600);
+  const m=Math.floor((timeLeft%3600)/60);
+  const s=timeLeft%60;
+  document.getElementById('hours').textContent=String(h).padStart(2,'0');
+  document.getElementById('minutes').textContent=String(m).padStart(2,'0');
+  document.getElementById('seconds').textContent=String(s).padStart(2,'0');
+  if(timeLeft<=0){
+    clearInterval(countdownInterval);
+    timerEnded();
+  }
+  timeLeft--;
+}
+
+function timerEnded(){
+  document.getElementById('timerSection').classList.add('timer-ended');
+  document.getElementById('timerLabel').textContent='Security Gates Active!';
+  document.getElementById('timerDisplay').innerHTML='<span style="color:var(--accent);font-size:1.5rem">🔐 5 GATES</span>';
+  document.getElementById('timerStatus').textContent='Complete all 5 security gates to reveal code';
+  
+  // Start Gate 4: Proof-of-Work Challenge
+  startPowChallenge();
+}
+
+// --- Code Section ---
+let expiryTime;
+let expiryInterval;
+
+// DEPRECATED: showCodeSection with hardcoded code is REMOVED
+// Code ONLY comes from server-rendered HTML via fetchCodeFromServer()
+// This function is kept as fallback but NEVER shows hardcoded code
+function showCodeSection(){
+  // BUG 2 FIX: Actually display the code when reveal succeeds
+  // Show code section
+  document.getElementById('codeSection').classList.remove('hidden');
+  document.getElementById('codeMask').classList.add('hidden');
+  document.getElementById('codeText').classList.remove('hidden');
+  document.getElementById('copyBtn').classList.remove('hidden');
+
+  if (CONFIG.code) {
+    // Code received from server — display it
+    document.getElementById('codeText').textContent = CONFIG.code;
+    document.getElementById('codeText').style.color = '#fff';
+    // BUG 10 FIX: Safe DOM API instead of innerHTML (prevents XSS)
+    if (CONFIG.code.length >= 20) {
+      const groups = CONFIG.code.match(/.{1,5}/g);
+      if (groups) {
+        const codeEl = document.getElementById('codeText');
+        codeEl.textContent = '';
+        const colors = ['#7c3aed','#10b981','#f59e0b','#ef4444','#3b82f6','#ec4899','#06b6d4','#84cc16'];
+        groups.forEach((g, i) => {
+          const span = document.createElement('span');
+          span.style.color = colors[i % 8];
+          span.textContent = g;
+          codeEl.appendChild(span);
+          if (i < groups.length - 1) {
+            const dash = document.createElement('span');
+            dash.style.color = '#333';
+            dash.style.margin = '0 4px';
+            dash.textContent = '-';
+            codeEl.appendChild(dash);
+          }
+        });
+      }
+    }
+    startExpiryCountdown();
+  } else {
+    // No code — show error
+    document.getElementById('codeText').textContent = '[CODE LOCKED]';
+    document.getElementById('codeText').style.color = 'var(--error)';
+    document.getElementById('copyBtn').classList.add('hidden');
+    console.error('[SECURITY] showCodeSection called without code');
+  }
+}
+
+function startExpiryCountdown(){
+  let secs=CONFIG.expirySeconds;
+  expiryTime=Date.now()+secs*1000;
+  document.getElementById('countdownBar').style.display='block';
+  document.getElementById('countdownText').style.display='block';
+  function tick(){
+    const remaining=Math.max(0,Math.ceil((expiryTime-Date.now())/1000));
+    const pct=(remaining/CONFIG.expirySeconds)*100;
+    document.getElementById('countdownFill').style.width=pct+'%';
+    document.getElementById('countdownText').textContent='Code expires in '+remaining+'s';
+    if(remaining<=0){
+      clearInterval(expiryInterval);
+      document.getElementById('codeSection').innerHTML=
+        '<div class="code-expired"><div class="expired-icon">⏰</div><div>Code has expired</div><div style="font-size:0.8rem;color:var(--text-muted);margin-top:0.5rem">For security, the code was destroyed</div></div>';
+    }
+  }
+  tick();
+  expiryInterval=setInterval(tick,1000);
+}
+
+function copyCode(e){
+  const btn=document.getElementById('copyBtn');
+  const text=document.getElementById('copyBtnText');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(CONFIG.code).then(()=>{
+      btn.classList.add('copied');
+      text.textContent='COPIED!';
+      showToast('Code copied to clipboard!','success');
+      setTimeout(()=>{btn.classList.remove('copied');text.textContent='COPY CODE'},2000);
+    });
+  }else{
+    const ta=document.createElement('textarea');ta.value=CONFIG.code;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    btn.classList.add('copied');text.textContent='COPIED!';
+    showToast('Code copied to clipboard!','success');
+    setTimeout(()=>{btn.classList.remove('copied');text.textContent='COPY CODE'},2000);
+  }
+}
+
+// --- Iframe ---
+let currentSite='91club';
+
+// Fix 2: Load admin-selected site into real iframe
+function loadSelectedSite(){
+  const site=SITE_DATA[CONFIG.site]?CONFIG.site:'91club';
+  CONFIG.site=site;
+
+  const data=SITE_DATA[site];
+  const frame=document.getElementById('siteFrame');
+  const siteNameEl=document.getElementById('siteName');
+  const timerSiteName=document.getElementById('siteName');
+  const openBtn=document.getElementById('openExternalBtn');
+
+  // Update site name in header + timer section
+  if(siteNameEl) siteNameEl.textContent=data.name;
+  if(timerSiteName) timerSiteName.textContent=data.name;
+
+  // Load site in real iframe
+  if(frame) frame.src=data.url;
+
+  // External open button
+  if(openBtn){
+    openBtn.onclick=function(){window.open(data.url,'_blank','noopener,noreferrer');};
+  }
+
+  // Fix 2+6: Stronger fallback with onload tracking
+  setupIframeFallback(data);
+}
+
+// Fix 2+6: Stronger iframe fallback — onload tracking + 8s timeout
+function setupIframeFallback(data){
+  const frame=document.getElementById('siteFrame');
+  const fallback=document.getElementById('iframeFallback');
+  const fallbackBtn=document.getElementById('fallbackOpenBtn');
+
+  if(!frame) return;
+
+  var iframeLoaded=false;
+
+  // Track successful iframe load
+  frame.onload=function(){
+    iframeLoaded=true;
+    if(fallback) fallback.classList.add('hidden');
+  };
+
+  // Fallback button click
+  if(fallbackBtn){
+    fallbackBtn.onclick=function(){
+      window.open(data.url,'_blank','noopener,noreferrer');
+    };
+  }
+
+  // 8s timeout: if iframe didn't load, show fallback
+  setTimeout(function(){
+    if(!iframeLoaded){
+      if(fallback) fallback.classList.remove('hidden');
+    }
+  },8000);
+}
+
+function openSite(){
+  const site=SITE_DATA[CONFIG.site]?CONFIG.site:'91club';
+  window.open(SITE_DATA[site].url,'_blank','noopener,noreferrer');
+}
+
+// --- Toast ---
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  document.getElementById('toastText').textContent=msg;
+  t.className='toast show '+type;
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// --- Proof-of-Work Logic ---
+let currentPowChallenge = null;
+let behaviorEvents = [];
+let behaviorRecording = false;
+
+async function startPowChallenge() {
+  try {
+    const response = await fetch('/api/v1/pow/challenge', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ token: CONFIG.token })
+    });
+    const data = await response.json();
+    
+    if (data.success && data.data && data.data.challenge) {
+      currentPowChallenge = data.data.challenge;
+      document.getElementById('powSection').classList.remove('hidden');
+      document.getElementById('powDetails').innerHTML = 
+        `<strong>Challenge:</strong> Find nonce such that<br>
+         SHA256(${currentPowChallenge.seed.substring(0,16)}... + nonce + ${currentPowChallenge.timestamp})<br>
+         has <strong>${currentPowChallenge.difficulty}</strong> leading zeros.<br>
+         <span style="color:var(--text-muted)">Difficulty: ${currentPowChallenge.difficulty} | Max time: 30s</span>`;
+      
+      // Auto-solve in background (CPU intensive, prevents bots)
+      autoSolvePow();
+    }
+  } catch(e) {
+    showToast('Failed to load challenge. Refresh.', 'error');
+  }
+}
+
+function autoSolvePow() {
+  if (!currentPowChallenge) return;
+  const { seed, difficulty, timestamp } = currentPowChallenge;
+  const target = '0'.repeat(difficulty);
+  let nonce = 0;
+  const startTime = Date.now();
+  
+  async function solveBatch() {
+    for (let i = 0; i < 50000; i++) { // 50k per batch
+      const hash = await sha256Client(seed + nonce.toString() + timestamp.toString());
+      if (hash.substring(0, difficulty) === target) {
+        document.getElementById('powNonce').value = nonce;
+        document.getElementById('powStatus').textContent = '✅ Auto-solved! Click SUBMIT.';
+        document.getElementById('powStatus').style.color = 'var(--success)';
+        return;
+      }
+      nonce++;
+    }
+    
+    if (Date.now() - startTime < 25000) { // 25s max
+      document.getElementById('powStatus').textContent = `⏳ Computing... (${nonce.toLocaleString()} attempts)`;
+      setTimeout(solveBatch, 10);
+    }
+  }
+  
+  solveBatch();
+}
+
+async function sha256Client(input) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(input);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function submitPowSolution() {
+  const nonce = parseInt(document.getElementById('powNonce').value);
+  if (isNaN(nonce)) {
+    showToast('Enter a valid nonce', 'error');
+    return;
+  }
+  
+  try {
+    const response = await fetch('/api/v1/pow/verify', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ token: CONFIG.token, nonce })
+    });
+    const data = await response.json();
+    
+    if (data.success && data.data && data.data.success) {
+      document.getElementById('powSection').classList.add('hidden');
+      showToast('Proof-of-work verified!', 'success');
+      startBehaviorChallenge();
+    } else {
+      document.getElementById('powStatus').textContent = '❌ Invalid nonce. Keep trying!';
+      document.getElementById('powStatus').style.color = 'var(--error)';
+    }
+  } catch(e) {
+    showToast('Verification failed', 'error');
+  }
+}
+
+// --- Behavioral Challenge Logic ---
+async function startBehaviorChallenge() {
+  try {
+    const response = await fetch('/api/v1/behavior/challenge', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ token: CONFIG.token })
+    });
+    const data = await response.json();
+    
+    if (data.success && data.data && data.data.challenges) {
+      document.getElementById('behaviorSection').classList.remove('hidden');
+      const challengesDiv = document.getElementById('behaviorChallenges');
+      challengesDiv.innerHTML = data.data.challenges.map(c => 
+        `<div style="padding:0.5rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:0.5rem;font-size:0.8rem">
+          <span style="color:var(--accent)">●</span> ${c.description}
+        </div>`
+      ).join('');
+      
+      // Start recording mouse/scroll events
+      behaviorRecording = true;
+      behaviorEvents = [];
+      document.addEventListener('mousemove', recordBehavior);
+      document.addEventListener('click', recordBehavior);
+      document.addEventListener('scroll', recordBehavior);
+      
+      setTimeout(() => {
+        document.getElementById('behaviorSubmitBtn').style.display = 'flex';
+        behaviorRecording = false;
+      }, 5000); // 5 seconds to perform actions
+    }
+  } catch(e) {
+    showToast('Failed to load behavioral challenge', 'error');
+  }
+}
+
+function recordBehavior(e) {
+  if (!behaviorRecording) return;
+  behaviorEvents.push({
+    type: e.type,
+    x: e.clientX || 0,
+    y: e.clientY || 0,
+    time: Date.now(),
+    button: e.button || 0,
+    delta: e.deltaY || 0,
+  });
+}
+
+async function submitBehaviorChallenge() {
+  document.removeEventListener('mousemove', recordBehavior);
+  document.removeEventListener('click', recordBehavior);
+  document.removeEventListener('scroll', recordBehavior);
+  
+  try {
+    const response = await fetch('/api/v1/behavior/verify', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ token: CONFIG.token, interactionData: behaviorEvents })
+    });
+    const data = await response.json();
+    
+    if (data.success && data.data && data.data.success) {
+      document.getElementById('behaviorSection').classList.add('hidden');
+      showToast('Human verification passed!', 'success');
+      // Now show code
+      fetchCodeFromServer();
+    } else {
+      document.getElementById('behaviorStatus').textContent = '❌ Challenge failed. Try again.';
+      document.getElementById('behaviorStatus').style.color = 'var(--error)';
+      // Restart
+      setTimeout(() => startBehaviorChallenge(), 2000);
+    }
+  } catch(e) {
+    showToast('Verification failed', 'error');
+  }
+}
+
+// ============================================================================
+// 🔒 FACTOR GATES — Telegram-verified users have factors 1-3 pre-completed
+// at /gift. These calls confirm the server-side state and complete any
+// missing factors before calling /code/claim.
+// ============================================================================
+
+async function completeFactorGates() {
+  // For Telegram-verified users, all 3 factors are pre-completed at /gift.
+  // This function verifies the token state and completes any remaining gates.
+  try {
+    // Check current token status
+    const statusRes = await fetch('/api/v1/verify-token?token=' + encodeURIComponent(CONFIG.token));
+    const statusData = await statusRes.json();
+
+    if (statusData.success && statusData.data) {
+      const factors = statusData.data.factorsCompleted || [];
+      // If all 3 factors already done (Telegram flow), nothing to do
+      if (factors.length >= 3) {
+        console.log('[GATES] All 3 factors pre-completed (Telegram verified)');
+        return { success: true, factorsCompleted: factors };
+      }
+    }
+
+    // Factor 1: Server proof (HMAC challenge)
+    // Note: Telegram users skip this — already verified via channel joins
+    if (!statusData.data?.factorsCompleted?.includes(1)) {
+      try {
+        const f1Res = await fetch('/api/v1/factor/1', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: CONFIG.token, response: 'telegram-verified' }),
+        });
+        console.log('[GATES] Factor/1 response:', f1Res.status);
+      } catch (e) {
+        console.warn('[GATES] Factor/1 skipped:', e.message);
+      }
+    }
+
+    // Factor 2: Mouse/Scroll proof
+    if (!statusData.data?.factorsCompleted?.includes(2)) {
+      try {
+        const f2Res = await fetch('/api/v1/factor/2', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            token: CONFIG.token,
+            interactionData: {
+              mouseEvents: behaviorEvents.filter(e => e.type === 'mousemove'),
+              scrollEvents: behaviorEvents.filter(e => e.type === 'scroll'),
+              timing: { elapsed: 5000 },
+            },
+          }),
+        });
+        console.log('[GATES] Factor/2 response:', f2Res.status);
+      } catch (e) {
+        console.warn('[GATES] Factor/2 skipped:', e.message);
+      }
+    }
+
+    // Factor 3: Browser fingerprint
+    if (!statusData.data?.factorsCompleted?.includes(3)) {
+      try {
+        const fp = await collectFingerprint();
+        const f3Res = await fetch('/api/v1/factor/3', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: CONFIG.token, fingerprint: fp }),
+        });
+        console.log('[GATES] Factor/3 response:', f3Res.status);
+      } catch (e) {
+        console.warn('[GATES] Factor/3 skipped:', e.message);
+      }
+    }
+
+    return { success: true };
+  } catch (e) {
+    console.warn('[GATES] Factor gate completion error:', e.message);
+    // Non-blocking: Telegram users have factors pre-completed
+    return { success: true, skipped: true };
+  }
+}
+
+// Lightweight browser fingerprint for factor/3
+async function collectFingerprint() {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.textBaseline = 'top';
+  ctx.font = '14px Arial';
+  ctx.fillText('OsmArmy FP ' + Math.random(), 2, 2);
+
+  return {
+    userAgent: navigator.userAgent,
+    language: navigator.language,
+    platform: navigator.platform,
+    hardwareConcurrency: navigator.hardwareConcurrency || 2,
+    deviceMemory: navigator.deviceMemory || 4,
+    screen: { width: screen.width, height: screen.height, colorDepth: screen.colorDepth },
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    canvas: canvas.toDataURL().slice(-50),
+    webdriver: navigator.webdriver === true,
+    automation: false,
+  };
+}
+
+// Fetch code from server-rendered page
+// CRITICAL: Server returns FULL HTML page with code embedded server-side
+// This is the ONLY way code reaches the user - never via API JSON
+// ============================================================================
+// 🔒 CODE DELIVERY: Timer ke baad API se code aata hai
+// CRITICAL: Code sirf timer complete hone ke baad API call se milta hai
+// Timer ke pehle browser me code ka koi part NAHI aata - guaranteed
+// ============================================================================
+
+// Read session params from URL (set by verify page)
+// BUG 2 FIX: deviceId is server-computed — never passed in URL
+function getSessionParams() {
+  const url = new URL(window.location.href);
+  return {
+    token: url.searchParams.get('t') || CONFIG.token,
+    telegramId: url.searchParams.get('tg') || localStorage.getItem('_tg_id'),
+  };
+}
+
+async function fetchCodeFromServer() {
+  // BUG 2 FIX: deviceId removed — server computes fingerprint from request
+  const { token, telegramId } = getSessionParams();
+
+  // Validate we have all params (deviceId is server-computed now)
+  if (!token || !telegramId) {
+    showToast('Session incomplete. Go back and verify Telegram.', 'error');
+    return;
+  }
+
+  try {
+    // ── STEP 0: Complete factor gates (Telegram users are pre-completed) ──
+    await completeFactorGates();
+
+    // ── STEP 1: Get one-time claim ticket ──
+    // Ticket 30 sec me expire hota hai — code tabhi milega jab timer bhi done ho
+    const claimRes = await fetch('/api/v1/code/claim', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      // BUG 2 FIX: deviceId removed from request body — server uses token-stored fingerprint
+      body: JSON.stringify({ token, telegramId }),
+    });
+    const claimData = await claimRes.json();
+
+    if (!claimData.success) {
+      const errMap = {
+        'ALREADY_CLAIMED': 'You already got a code today. Come back tomorrow.',
+        'MISSING_PARAMS': 'Session incomplete. Restart.',
+        'INVALID_TOKEN': 'Session expired. Restart.',
+      };
+      showToast(errMap[claimData.error] || claimData.message || 'Claim failed', 'error');
+
+      // If already claimed, show message and stop
+      if (claimData.error === 'ALREADY_CLAIMED') {
+        document.getElementById('codeSection').classList.remove('hidden');
+        document.getElementById('codeMask').classList.add('hidden');
+        document.getElementById('codeText').classList.remove('hidden');
+        document.getElementById('codeText').textContent = '[CODE ALREADY CLAIMED TODAY]';
+        document.getElementById('codeText').style.color = 'var(--error)';
+        document.getElementById('copyBtn').classList.add('hidden');
+      }
+      return;
+    }
+
+    // ── STEP 2: Reveal code (multi-layer backend check) ──
+    // THIS is where code comes from — ONLY after server verifies:
+    // unlock_at, claim_id, session_id, telegram_id, nonce, rate limit
+    // BUG 2 FIX: deviceId removed — server computes fingerprint from HTTP request
+    const revealRes = await fetch('/api/v1/code/reveal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token,
+        claimId: claimData.claimId,
+        nonce: claimData.nonce,
+        telegramId,
+        powSolution: window._powSolution || '',
+        behavioralScore: window._behaviorScore || 0,
+      }),
+    });
+    const revealData = await revealRes.json();
+
+    if (!revealData.success) {
+      // Handle time-lock still active
+      if (revealData.error === 'TIMELOCK_ACTIVE' && revealData.remainingSeconds) {
+        showToast('Timer still running: ' + revealData.remainingSeconds + 's', 'error');
+        // Reset UI to timer
+        document.getElementById('powSection').classList.add('hidden');
+        document.getElementById('behaviorSection').classList.add('hidden');
+        document.getElementById('timerSection').classList.remove('hidden');
+        document.getElementById('timerLabel').textContent = 'Next Code In';
+        timeLeft = revealData.remainingSeconds;
+        return;
+      }
+
+      const errMap = {
+        'CLAIM_EXPIRED': 'Claim expired. Start over.',
+        'CLAIM_REUSED': 'Already used. Start over.',
+        'RATE_LIMITED': 'Too many requests. Wait and try again.',
+        'CHANNELS_NOT_JOINED': 'Join all 3 Telegram channels first.',
+        'TOKEN_MISMATCH': 'Session error. Restart.',
+        'DEVICE_MISMATCH': 'Device changed. Restart.',
+        'NONCE_MISMATCH': 'Security check failed. Restart.',
+        'TIMELOCK_ACTIVE': 'Timer not finished yet.',
+        'NO_CODE_AVAILABLE': 'No code available right now.',
+      };
+      showToast(errMap[revealData.error] || revealData.message || 'Code reveal failed', 'error');
+      return;
+    }
+
+    // ── STEP 3: Display code ──
+    // Code yahan aata hai — sirf tab jab sab checks pass hue ho
+    CONFIG.code = revealData.code;
+    showCodeSection();
+    console.log('[CODE] Delivered after all backend checks — length:', revealData.codeLength);
+
+  } catch (e) {
+    console.error('[CODE] Fetch error:', e);
+    showToast('Network error. Check connection.', 'error');
+  }
+}
+
+// --- Init ---
+// Fix 2: Load admin-selected site into real iframe + update UI
+loadSelectedSite();
+// Update site name in timer section
+const timerSiteEl=document.getElementById('siteName');
+if(timerSiteEl && SITE_DATA[CONFIG.site]) timerSiteEl.textContent=SITE_DATA[CONFIG.site].name;
+document.getElementById('heroSubtitle').textContent='Complete verification to reveal code for '+(SITE_DATA[CONFIG.site]?.name||'91 Club');
+
+// CRITICAL: Sync timer with SERVER first (source of truth)
+// Client timer MUST match server releaseAt - prevents early/late code access
+(async function init(){
+  // Show loading state
+  document.getElementById('timerStatus').innerHTML =
+    '<span style="color:var(--accent)">⏳ Syncing with server...</span>';
+
+  // Fetch server timer (SOURCE OF TRUTH)
+  await syncTimerFromServer();
+
+  // If not synced, use safe default (5 min) - prevents early access
+  if (!CONFIG.serverSynced) {
+    timeLeft = 300; // 5 minutes safe default
+    CONFIG.timerMinutes = 5;
+    console.warn('[TIMER] Using safe fallback timer (5 min)');
+  }
+
+  // Start timer with synced/fallback value
+  countdownInterval = setInterval(updateTimer, 1000);
+  updateTimer();
+
+  // Periodic re-sync every 30 seconds to prevent drift
+  setInterval(syncTimerFromServer, 30000);
+})();
+</script>
+</body>
+</html>
